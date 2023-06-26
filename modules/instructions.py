@@ -2,7 +2,7 @@
 
 def instructions_post():
     instructions = {
-    "singup": {
+    "/singup": {
         "method": "PUT",
         "options": {
             "name": {
@@ -29,7 +29,7 @@ def instructions_post():
             },
         },
     },
-    "login": {
+    "/login": {
         "method": "POST",
         "options": {
             "name": {
