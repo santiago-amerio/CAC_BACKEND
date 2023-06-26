@@ -1,9 +1,7 @@
-
-
 #
 #   !!! antes que nada corre pip install -r req.txtt !!!
 #
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request,render_template
 
 # del modulo flask importar la clase Flask y los métodos jsonify,request
 from flask_cors import CORS  # del modulo flask_cors importar CORS
@@ -11,6 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from modules.login import authentication
 from modules.auth import check_user_token
+from modules.instructions import instructions_post
 app = Flask(__name__)  # crear el objeto app de la clase Flask
 CORS(app)  # modulo cors es para que me permita acceder desde el frontend al backend
 import os
@@ -19,11 +18,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 #env variables for db connection
-DB_protocol= os.getenv("PROTOCOL")
-DB_user= os.getenv("USER")
-DB_passw= os.getenv("PASSW")
-DB_host= os.getenv("HOST")
-DB_db_name= os.getenv("DB_NAME")
+DB_protocol= os.getenv("MYSQL_PROTOCOL")
+DB_user= os.getenv("MYSQL_USER")
+DB_passw= os.getenv("MYSQL_PASSW")
+DB_host= os.getenv("MYSQL_HOST")
+DB_db_name= os.getenv("MYSQL_DB_NAME")
 
 # configuro la base de datos, con el nombre el usuario y la clave
 app.config[
@@ -105,7 +104,7 @@ users_schema = UserSchema(
 )  # El objeto productos_schema es para traer multiples registros de producto
 
 
-@app.route("/singup", methods=["POST"])
+@app.route("/singup", methods=["PUT"])
 def create_user():
     name = request.json["name"]
     passw = request.json["passw"]
@@ -193,7 +192,14 @@ def update_producto(id):
     db.session.commit()
     return producto_schema.jsonify(producto)
 
+@app.route("/",methods=["POST"])
+def home_POST():
+    return instructions_post()
+@app.route("/",methods=["GET"])
+def home_GET():
 
-# programa principal *******************************
+    return render_template("instructions_template.html",instructions=instructions_post())
+    
+    # programa principal *******************************
 if __name__ == "__main__":
     app.run(debug=True, port=5000)  # ejecuta el servidor Flask en el puerto 5000
