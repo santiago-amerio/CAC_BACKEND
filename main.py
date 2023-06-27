@@ -1,28 +1,32 @@
 #
 #   !!! antes que nada corre pip install -r req.txtt !!!
 #
-from flask import Flask, jsonify, request,render_template
+from flask import Flask, jsonify, request, render_template
 
 # del modulo flask importar la clase Flask y los métodos jsonify,request
 from flask_cors import CORS  # del modulo flask_cors importar CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+
+
 from modules.login import authentication
 from modules.auth import check_user_token
 from modules.instructions import instructions_post
+
 app = Flask(__name__)  # crear el objeto app de la clase Flask
 CORS(app)  # modulo cors es para que me permita acceder desde el frontend al backend
 import os
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
-#env variables for db connection
-DB_protocol= os.getenv("MYSQL_PROTOCOL")
-DB_user= os.getenv("MYSQL_USER")
-DB_passw= os.getenv("MYSQL_PASSW")
-DB_host= os.getenv("MYSQL_HOST")
-DB_db_name= os.getenv("MYSQL_DB_NAME")
+# env variables for db connection
+DB_protocol = os.getenv("MYSQL_PROTOCOL")
+DB_user = os.getenv("MYSQL_USER")
+DB_passw = os.getenv("MYSQL_PASSW")
+DB_host = os.getenv("MYSQL_HOST")
+DB_db_name = os.getenv("MYSQL_DB_NAME")
 
 # configuro la base de datos, con el nombre el usuario y la clave
 app.config[
@@ -52,7 +56,7 @@ class Producto(db.Model):  # la clase Producto hereda de db.Model
 
 
 class User(db.Model):  # la clase Producto hereda de db.Model
-    id = db.Column(db.Integer,primary_key=True)  # define los campos de la tabla
+    id = db.Column(db.Integer, primary_key=True)  # define los campos de la tabla
     name = db.Column(db.String(100))
     passw = db.Column(db.String(100))
 
@@ -62,17 +66,14 @@ class User(db.Model):  # la clase Producto hereda de db.Model
         self.passw = passw
 
 
-
-
 class Token(db.Model):  # la clase Producto hereda de db.Model
-    id = db.Column(db.Integer,primary_key=True)  # define los campos de la tabla
-    user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
-    token = db.Column(db.String(150) )
+    id = db.Column(db.Integer, primary_key=True)  # define los campos de la tabla
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    token = db.Column(db.String(150))
 
     def __init__(self, user_id, token):
         self.user_id = user_id
         self.token = token
-    
 
 
 with app.app_context():
@@ -119,8 +120,8 @@ def create_user():
 def send_token():
     name = request.json["name"]
     user = User.query.filter_by(name=name).first()
-    token = authentication(user,request.json)
-    if(token):
+    token = authentication(user, request.json)
+    if token:
         new_token = Token(user.id, token)
         db.session.add(new_token)
         db.session.commit()
@@ -132,7 +133,6 @@ def send_token():
 # crea los endpoint o rutas (json)
 @app.route("/productos", methods=["GET"])
 def get_Productos():
-    
     all_productos = Producto.query.all()  # el metodo query.all() lo hereda de db.Model
     result = productos_schema.dump(
         all_productos
@@ -161,8 +161,8 @@ def delete_producto(id):
 
 @app.route("/productos", methods=["POST"])  # crea ruta o endpoint
 def create_producto():
-    is_authenticated = check_user_token(db,User,Token,request.json)
-    if(is_authenticated):
+    is_authenticated = check_user_token(db, User, Token, request.json)
+    if is_authenticated:
         # print(request.json)  # request.json contiene el json que envio el cliente
         nombre = request.json["nombre"]
         precio = request.json["precio"]
@@ -174,6 +174,7 @@ def create_producto():
         return producto_schema.jsonify(new_producto)
     else:
         return "auth Error"
+
 
 @app.route("/productos/<id>", methods=["PUT"])
 def update_producto(id):
@@ -192,14 +193,20 @@ def update_producto(id):
     db.session.commit()
     return producto_schema.jsonify(producto)
 
-@app.route("/",methods=["POST"])
+
+@app.route("/", methods=["POST"])
 def home_POST():
     return instructions_post()
-@app.route("/",methods=["GET"])
-def home_GET():
 
-    return render_template("instructions_template.html",instructions=instructions_post())
-    
+
+@app.route("/", methods=["GET"])
+def home_GET():
+    return render_template(
+        "instructions_template.html", instructions=instructions_post()
+    )
+
     # programa principal *******************************
+
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)  # ejecuta el servidor Flask en el puerto 5000
