@@ -3,6 +3,8 @@
 #
 from flask import Flask, jsonify, request, render_template
 
+
+
 # del modulo flask importar la clase Flask y los métodos jsonify,request
 from flask_cors import CORS  # del modulo flask_cors importar CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -13,8 +15,7 @@ from modules.login import authentication
 from modules.auth import check_user_token
 from modules.instructions import instructions_post
 
-app = Flask(__name__)  # crear el objeto app de la clase Flask
-CORS(app)  # modulo cors es para que me permita acceder desde el frontend al backend
+
 import os
 
 from dotenv import load_dotenv
@@ -27,6 +28,9 @@ DB_user = os.getenv("MYSQL_USER")
 DB_passw = os.getenv("MYSQL_PASSW")
 DB_host = os.getenv("MYSQL_HOST")
 DB_db_name = os.getenv("MYSQL_DB_NAME")
+
+app = Flask(__name__)  # crear el objeto app de la clase Flask
+CORS(app)  # modulo cors es para que me permita acceder desde el frontend al backend
 
 # configuro la base de datos, con el nombre el usuario y la clave
 app.config[
@@ -104,108 +108,94 @@ users_schema = UserSchema(
     many=True
 )  # El objeto productos_schema es para traer multiples registros de producto
 
+class Routes:
+    def __init__(self, app):
+        self.app = app
+        self.register_routes()
 
-@app.route("/singup", methods=["PUT"])
-def create_user():
-    name = request.json["name"]
-    passw = request.json["passw"]
-    new_user = User(name, passw)
-    db.session.add(new_user)
-    db.session.commit()
+    def register_routes(self):
+        self.app.add_url_rule("/singup", view_func=self.create_user, methods=["PUT"])
+        self.app.add_url_rule("/login", view_func=self.send_token, methods=["POST"])
+        self.app.add_url_rule("/productos", view_func=self.get_Productos, methods=["GET"])
+        self.app.add_url_rule("/productos/<id>", view_func=self.get_producto, methods=["GET"])
+        self.app.add_url_rule("/productos/<id>", view_func=self.delete_producto, methods=["DELETE"])
+        self.app.add_url_rule("/productos", view_func=self.create_producto, methods=["POST"])
+        self.app.add_url_rule("/productos/<id>", view_func=self.update_producto, methods=["PUT"])
+        self.app.add_url_rule("/", view_func=self.home_POST, methods=["POST"])
+        self.app.add_url_rule("/", view_func=self.home_GET, methods=["GET"])
 
-    return user_schema.jsonify(new_user)
-
-
-@app.route("/login", methods=["POST"])
-def send_token():
-    name = request.json["name"]
-    user = User.query.filter_by(name=name).first()
-    token = authentication(user, request.json)
-    if token:
-        new_token = Token(user.id, token)
-        db.session.add(new_token)
+    def create_user(self):
+        name = request.json["name"]
+        passw = request.json["passw"]
+        new_user = User(name, passw)
+        db.session.add(new_user)
         db.session.commit()
-        return jsonify(token)
-    else:
-        return "error"
+        return user_schema.jsonify(new_user)
 
+    def send_token(self):
+        name = request.json["name"]
+        user = User.query.filter_by(name=name).first()
+        token = authentication(user, request.json)
+        if token:
+            new_token = Token(user.id, token)
+            db.session.add(new_token)
+            db.session.commit()
+            return jsonify(token)
+        else:
+            return "error"
 
-# crea los endpoint o rutas (json)
-@app.route("/productos", methods=["GET"])
-def get_Productos():
-    all_productos = Producto.query.all()  # el metodo query.all() lo hereda de db.Model
-    result = productos_schema.dump(
-        all_productos
-    )  # el metodo dump() lo hereda de ma.schema y
-    # trae todos los registros de la tabla
-    return jsonify(result)  # retorna un JSON de todos los registros de la tabla
+    def get_Productos(self):
+        all_productos = Producto.query.all()
+        result = productos_schema.dump(all_productos)
+        return jsonify(result)
 
+    def get_producto(self, id):
+        producto = Producto.query.get(id)
+        return producto_schema.jsonify(producto)
 
-@app.route("/productos/<id>", methods=["GET"])
-def get_producto(id):
-    producto = Producto.query.get(id)
-    return producto_schema.jsonify(
-        producto
-    )  # retorna el JSON de un producto recibido como parametro
+    def delete_producto(self, id):
+        producto = Producto.query.get(id)
+        db.session.delete(producto)
+        db.session.commit()
+        return producto_schema.jsonify(producto)
 
+    def create_producto(self):
+        is_authenticated = check_user_token(db, User, Token, request.json)
+        if is_authenticated:
+            nombre = request.json["nombre"]
+            precio = request.json["precio"]
+            stock = request.json["stock"]
+            imagen = request.json["imagen"]
+            new_producto = Producto(nombre, precio, stock, imagen)
+            db.session.add(new_producto)
+            db.session.commit()
+            return producto_schema.jsonify(new_producto)
+        else:
+            return "auth Error"
 
-@app.route("/productos/<id>", methods=["DELETE"])
-def delete_producto(id):
-    producto = Producto.query.get(id)
-    db.session.delete(producto)
-    db.session.commit()
-    return producto_schema.jsonify(
-        producto
-    )  # me devuelve un json con el registro eliminado
-
-
-@app.route("/productos", methods=["POST"])  # crea ruta o endpoint
-def create_producto():
-    is_authenticated = check_user_token(db, User, Token, request.json)
-    if is_authenticated:
-        # print(request.json)  # request.json contiene el json que envio el cliente
+    def update_producto(self, id):
+        producto = Producto.query.get(id)
         nombre = request.json["nombre"]
         precio = request.json["precio"]
         stock = request.json["stock"]
         imagen = request.json["imagen"]
-        new_producto = Producto(nombre, precio, stock, imagen)
-        db.session.add(new_producto)
+        producto.nombre = nombre
+        producto.precio = precio
+        producto.stock = stock
+        producto.imagen = imagen
         db.session.commit()
-        return producto_schema.jsonify(new_producto)
-    else:
-        return "auth Error"
+        return producto_schema.jsonify(producto)
+
+    def home_POST(self):
+        return instructions_post()
+
+    def home_GET(self):
+        return render_template("instructions_template.html", instructions=instructions_post())
 
 
-@app.route("/productos/<id>", methods=["PUT"])
-def update_producto(id):
-    producto = Producto.query.get(id)
 
-    nombre = request.json["nombre"]
-    precio = request.json["precio"]
-    stock = request.json["stock"]
-    imagen = request.json["imagen"]
-
-    producto.nombre = nombre
-    producto.precio = precio
-    producto.stock = stock
-    producto.imagen = imagen
-
-    db.session.commit()
-    return producto_schema.jsonify(producto)
-
-
-@app.route("/", methods=["POST"])
-def home_POST():
-    return instructions_post()
-
-
-@app.route("/", methods=["GET"])
-def home_GET():
-    return render_template(
-        "instructions_template.html", instructions=instructions_post()
-    )
-
-    # programa principal *******************************
+# Create the routes
+routes_instance = Routes(app)
 
 
 if __name__ == "__main__":
