@@ -9,7 +9,7 @@ expiration_delay = timedelta(days=30)
 
 
 def check_user_token(db, User, Token, request):
-    token = request["token"]
+    token = request.json["token"]
     user = token.split(".")[0]
 
     result = db.session.query(User, Token).filter_by(name=user).join(User).all()
@@ -69,7 +69,7 @@ def needs_auth_decorator(
 ):
     def decorator(func):
         def wrapper(*args, **kwargs):
-            if check_user_token(db, User, Token, request.json):
+            if check_user_token(db, User, Token, request):
                 return func(*args, **kwargs)
             else:
                 # Authentication failed, handle accordingly
