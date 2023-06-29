@@ -3,7 +3,7 @@ from flask import jsonify
 from collections import defaultdict
 import random
 import string
-
+from functools import wraps
 # tiempo que el token es valido para autenticacion
 expiration_delay = timedelta(days=30)
 
@@ -22,7 +22,6 @@ def check_user_token(db, User, Token, request):
                 # quiere decir que el token para login sigue vigente, al pasar
                 # expiration_delay cantidad de tiempo, el token deja de funcionar
                 return True
-
     # cuando no encuentra un token igual al del del cliente
     # devuelve False
     return False
@@ -61,13 +60,9 @@ def clear_timed_out_tokens(db, Token):
     return cleared_tokens
 
 
-def needs_auth_decorator(
-    db,
-    User,
-    Token,
-    request,
-):
+def needs_auth_decorator(db, User, Token, request):
     def decorator(func):
+        @wraps(func)
         def wrapper(*args, **kwargs):
             if check_user_token(db, User, Token, request):
                 return func(*args, **kwargs)
