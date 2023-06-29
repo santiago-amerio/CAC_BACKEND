@@ -11,11 +11,10 @@ expiration_delay = timedelta(days=30)
 def check_user_token(db, User, Token, request):
     token = request["token"]
     user = token.split(".")[0]
-    print(user, token)
-    # user = Token.query.filter_by(name=user).first()
+
     result = db.session.query(User, Token).filter_by(name=user).join(User).all()
 
-    for db_user, db_token in result:
+    for _, db_token in result:
         if token == db_token.token:
             # si encuentra un token igual al del cliente chequea la expiracion del token
             if datetime.now() - expiration_delay < db_token.creation_date:
@@ -60,3 +59,23 @@ def clear_timed_out_tokens(db, Token):
             db.session.commit()
     cleared_tokens["accounts"] = dict(cleared_tokens["accounts"])
     return cleared_tokens
+
+
+def needs_auth_decorator(
+    db,
+    User,
+    Token,
+    request,
+):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            if check_user_token(db, User, Token, request.json):
+                return func(*args, **kwargs)
+            else:
+                # Authentication failed, handle accordingly
+                return "auth_error"  # or raise an exception
+
+        print(wrapper)
+        return wrapper
+
+    return decorator

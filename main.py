@@ -10,9 +10,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
 
-from modules.auth import check_user_token, login, clear_timed_out_tokens
+from modules.auth import needs_auth_decorator, login, clear_timed_out_tokens
 from modules.instructions import instructions_post
 from datetime import datetime, timedelta
+
+
 
 import os
 
@@ -186,10 +188,9 @@ class Routes:
         db.session.delete(producto)
         db.session.commit()
         return producto_schema.jsonify(producto)
-
+    
+    @needs_auth_decorator(db, User, Token, request)
     def create_producto(self):
-        is_authenticated = check_user_token(db, User, Token, request.json)
-        if is_authenticated:
             nombre = request.json["nombre"]
             precio = request.json["precio"]
             stock = request.json["stock"]
@@ -198,8 +199,7 @@ class Routes:
             db.session.add(new_producto)
             db.session.commit()
             return producto_schema.jsonify(new_producto)
-        else:
-            return "auth Error"
+       
 
     def update_producto(self, id):
         producto = Producto.query.get(id)
