@@ -10,7 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
 
-from modules.auth import check_user_token, login
+from modules.auth import check_user_token, login, clear_timed_out_tokens
 from modules.instructions import instructions_post
 from datetime import datetime, timedelta
 
@@ -109,6 +109,17 @@ users_schema = UserSchema(
 )  # El objeto productos_schema es para traer multiples registros de producto
 
 
+class TokenSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "user_id", "token", "expiration")
+
+
+token_schema = TokenSchema()  # El objeto producto_schema es para traer un producto
+tokens_schema = TokenSchema(
+    many=True
+)  # El objeto productos_schema es para traer multiples registros de producto
+
+
 class Routes:
     def __init__(self, app):
         self.app = app
@@ -132,6 +143,9 @@ class Routes:
         self.app.add_url_rule(
             "/productos/<id>", view_func=self.update_producto, methods=["PUT"]
         )
+        self.app.add_url_rule(
+            "/clear_tokens", view_func=self.clear_tokens, methods=["GET"]
+        )
         self.app.add_url_rule("/", view_func=self.home_POST, methods=["POST"])
         self.app.add_url_rule("/", view_func=self.home_GET, methods=["GET"])
 
@@ -154,6 +168,9 @@ class Routes:
             return jsonify(token)
         else:
             return "error"
+
+    def clear_tokens(self):
+        return clear_timed_out_tokens(db, Token)
 
     def get_Productos(self):
         all_productos = Producto.query.all()
