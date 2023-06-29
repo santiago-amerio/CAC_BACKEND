@@ -4,17 +4,15 @@
 from flask import Flask, jsonify, request, render_template
 
 
-
 # del modulo flask importar la clase Flask y los métodos jsonify,request
 from flask_cors import CORS  # del modulo flask_cors importar CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
 
-from modules.login import authentication
-from modules.auth import check_user_token
+from modules.auth import check_user_token, login
 from modules.instructions import instructions_post
-
+from datetime import datetime, timedelta
 
 import os
 
@@ -61,7 +59,7 @@ class Producto(db.Model):  # la clase Producto hereda de db.Model
 
 class User(db.Model):  # la clase Producto hereda de db.Model
     id = db.Column(db.Integer, primary_key=True)  # define los campos de la tabla
-    name = db.Column(db.String(100))
+    name = db.Column(db.String(100), unique=True)
     passw = db.Column(db.String(100))
 
     def __init__(self, name, passw):
@@ -74,10 +72,12 @@ class Token(db.Model):  # la clase Producto hereda de db.Model
     id = db.Column(db.Integer, primary_key=True)  # define los campos de la tabla
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     token = db.Column(db.String(150))
+    creation_date = db.Column(db.DateTime())
 
     def __init__(self, user_id, token):
         self.user_id = user_id
         self.token = token
+        self.creation_date = datetime.now()
 
 
 with app.app_context():
@@ -108,6 +108,7 @@ users_schema = UserSchema(
     many=True
 )  # El objeto productos_schema es para traer multiples registros de producto
 
+
 class Routes:
     def __init__(self, app):
         self.app = app
@@ -116,11 +117,21 @@ class Routes:
     def register_routes(self):
         self.app.add_url_rule("/singup", view_func=self.create_user, methods=["PUT"])
         self.app.add_url_rule("/login", view_func=self.send_token, methods=["POST"])
-        self.app.add_url_rule("/productos", view_func=self.get_Productos, methods=["GET"])
-        self.app.add_url_rule("/productos/<id>", view_func=self.get_producto, methods=["GET"])
-        self.app.add_url_rule("/productos/<id>", view_func=self.delete_producto, methods=["DELETE"])
-        self.app.add_url_rule("/productos", view_func=self.create_producto, methods=["POST"])
-        self.app.add_url_rule("/productos/<id>", view_func=self.update_producto, methods=["PUT"])
+        self.app.add_url_rule(
+            "/productos", view_func=self.get_Productos, methods=["GET"]
+        )
+        self.app.add_url_rule(
+            "/productos/<id>", view_func=self.get_producto, methods=["GET"]
+        )
+        self.app.add_url_rule(
+            "/productos/<id>", view_func=self.delete_producto, methods=["DELETE"]
+        )
+        self.app.add_url_rule(
+            "/productos", view_func=self.create_producto, methods=["POST"]
+        )
+        self.app.add_url_rule(
+            "/productos/<id>", view_func=self.update_producto, methods=["PUT"]
+        )
         self.app.add_url_rule("/", view_func=self.home_POST, methods=["POST"])
         self.app.add_url_rule("/", view_func=self.home_GET, methods=["GET"])
 
@@ -135,7 +146,7 @@ class Routes:
     def send_token(self):
         name = request.json["name"]
         user = User.query.filter_by(name=name).first()
-        token = authentication(user, request.json)
+        token = login(user, request.json)
         if token:
             new_token = Token(user.id, token)
             db.session.add(new_token)
@@ -190,8 +201,9 @@ class Routes:
         return instructions_post()
 
     def home_GET(self):
-        return render_template("instructions_template.html", instructions=instructions_post())
-
+        return render_template(
+            "instructions_template.html", instructions=instructions_post()
+        )
 
 
 # Create the routes
