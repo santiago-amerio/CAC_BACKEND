@@ -18,8 +18,11 @@
             text-align: center;
         }
 
-        .endpoint {
+        .endpoints-title {
+            padding: 0 1rem;
+        }
 
+        .endpoint {
             padding: .5rem .2rem;
             margin: .5rem 0rem;
             position: sticky;
@@ -31,7 +34,8 @@
             display: block;
             cursor: pointer;
             background: rgb(93, 93, 93) !important;
-            transition: background-color .2s
+            transition: background-color .2s;
+            padding: 0rem .5rem;
         }
 
         .anchor-link:hover {
@@ -118,8 +122,8 @@
 
         @media (max-width: 800px) {
             #aside {
-            display: none;
-        }
+                display: none;
+            }
         }
 
         ul {
@@ -169,20 +173,47 @@
             background-repeat: no-repeat;
             margin-bottom: .2rem;
         }
+
+        .to-top {
+            color: white;
+            font-size: 2rem;
+            position: fixed;
+            bottom: 1rem;
+            right: 2rem;
+            transition: transform 1s;
+            cursor: pointer;
+        }
+
+        .to-top>a {
+            position: relative;
+            bottom: 0rem;
+            transition: bottom .5s;
+            text-decoration: none;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .to-top:hover>a {
+            bottom: .5rem;
+            
+        }
     </style>
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/gh/highlightjs/highlight.js@main/src/styles/tokyo-night-dark.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <script>hljs.highlightAll();</script>
+    <script src="https://kit.fontawesome.com/f848986b3d.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
-
+    <div class="to-top">
+        <a href="#main"><i class="fa-solid fa-angles-up"></i></a>
+    </div>
     <div class="container">
         <div class="content">
             <div id="aside">
                 <div>
-                    <h1>enpoints</h1>
+                    <h1 class="endpoints-title">enpoints</h1>
                     <ul>
                         <a class="anchor-link" href="#main">
                             <li class="endpoint">/</li>
