@@ -200,7 +200,7 @@ class Routes:
             db.session.commit()
             return producto_schema.jsonify(new_producto)
        
-    @needs_auth_decorator(db, User, Token, request) 
+
     def update_producto(self, id):
         producto = Producto.query.get(id)
         nombre = request.json["nombre"]
