@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from flask import jsonify
+from flask import jsonify,make_response
 from collections import defaultdict
 import random
 import string
@@ -29,15 +29,25 @@ def check_user_token(db, User, Token, request):
 
 def login(user, request):
     try:
+        print(user.passw == request["passw"] and user.name == request["name"])
         if user.passw == request["passw"] and user.name == request["name"]:
             letters = string.ascii_lowercase
             token = user.name + "." + "".join(random.choice(letters) for i in range(50))
 
-            return token
+            response = make_response(jsonify({"message": "Login successful"}))
+            print("resp",response)
+            response.set_cookie("token", token, max_age=expiration_delay.total_seconds(), secure=True)
+            print("resp",response)
+            return response
         else:
-            return False
+            response = jsonify({"message": "Invalid credentials"})
+            response.status_code = 401
+            return response
     except:
-        return False
+        response = jsonify({"message": "Error occurred"})
+        response.status_code = 500
+        return response
+
 
 
 def clear_timed_out_tokens(db, Token):

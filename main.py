@@ -1,7 +1,7 @@
 #
 #   !!! antes que nada corre pip install -r req.txtt !!!
 #
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, make_response
 
 
 # del modulo flask importar la clase Flask y los métodos jsonify,request
@@ -13,7 +13,6 @@ from flask_marshmallow import Marshmallow
 from modules.auth import needs_auth_decorator, login, clear_timed_out_tokens
 from modules.instructions import instructions_post
 from datetime import datetime, timedelta
-
 
 
 import os
@@ -163,13 +162,15 @@ class Routes:
         name = request.json["name"]
         user = User.query.filter_by(name=name).first()
         token = login(user, request.json)
-        if token:
+        print("main", token.status_code)
+
+        if token.status_code == 200:
             new_token = Token(user.id, token)
             db.session.add(new_token)
             db.session.commit()
-            return jsonify(token)
+            return token
         else:
-            return "error"
+            return token.json
 
     def clear_tokens(self):
         return clear_timed_out_tokens(db, Token)
@@ -188,18 +189,17 @@ class Routes:
         db.session.delete(producto)
         db.session.commit()
         return producto_schema.jsonify(producto)
-    
+
     @needs_auth_decorator(db, User, Token, request)
     def create_producto(self):
-            nombre = request.json["nombre"]
-            precio = request.json["precio"]
-            stock = request.json["stock"]
-            imagen = request.json["imagen"]
-            new_producto = Producto(nombre, precio, stock, imagen)
-            db.session.add(new_producto)
-            db.session.commit()
-            return producto_schema.jsonify(new_producto)
-       
+        nombre = request.json["nombre"]
+        precio = request.json["precio"]
+        stock = request.json["stock"]
+        imagen = request.json["imagen"]
+        new_producto = Producto(nombre, precio, stock, imagen)
+        db.session.add(new_producto)
+        db.session.commit()
+        return producto_schema.jsonify(new_producto)
 
     def update_producto(self, id):
         producto = Producto.query.get(id)

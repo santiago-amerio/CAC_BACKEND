@@ -137,9 +137,12 @@
         }
 
 
+        .pre-line>code {
+            display: block;
+        }
 
         code {
-            display: inline-block;
+
             padding: 2px 4px;
             margin-right: .5rem;
             font-family: Consolas, Monaco, 'Courier New', monospace;
@@ -150,27 +153,16 @@
 
         }
 
-        .pre-line {
-            white-space: pre-line;
-            min-width: -webkit-fill-available;
-            min-width: -moz-available;
-            min-width: stretch;
-            max-width: 0;
-            overflow: auto;
-        }
 
         .hljs {
             padding: .5rem .5rem;
         }
 
         .half-title {
-            border-top: 1px dashed rgba(128, 128, 128, 0.49);
-            padding-top: 1rem;
+            display: inline-block;
+            padding-right: 2rem;
             padding-bottom: .2rem;
-            background-image: linear-gradient(rgba(128, 128, 128, 0.49), rgba(128, 128, 128, 0.572));
-            background-size: 10rem 2px;
-            background-position: bottom left;
-            background-repeat: no-repeat;
+            border-bottom: 2px solid rgba(128, 128, 128, 0.49);
             margin-bottom: .2rem;
         }
 
@@ -195,7 +187,29 @@
 
         .to-top:hover>a {
             bottom: .5rem;
-            
+
+        }
+
+        .get {
+            color: gray;
+        }
+
+        .post {
+            color: #51abfa;
+        }
+
+        .delete {
+            color: tomato;
+        }
+
+        .put {
+            color: yellow;
+        }
+
+        .del {
+            color: red;
+            font-weight: bolder;
+            background-color: yellow;
         }
     </style>
     <link rel="stylesheet"
@@ -215,7 +229,7 @@
                 <div>
                     <h1 class="endpoints-title">enpoints</h1>
                     <ul>
-                        <a class="anchor-link" href="#main">
+                        <a class="anchor-link" href="#root">
                             <li class="endpoint">/</li>
                         </a>
                         <a class="anchor-link" href="#singup">
@@ -231,6 +245,29 @@
                 <div id="main" class="api-logo">
                     <img src="https://i.postimg.cc/GtQFmYGv/CORE-WEB-SOLUTIONS-w.png" alt="API Logo">
                 </div>
+                <div id="root" class="section">
+                    <h1>/</h1>
+
+                    <p class="description">
+                        Root endpoint '/' muestra opciones de la API<br>
+                        GET: te trae a esta pagina.<br>
+                        POST: devuelve un JSON con todas las opciones de la API
+                    </p>
+
+                    <h3 class="half-title">- Request <span class="post">[POST]</span></h3>
+                    <p class="description">
+                        no necesita body
+                    </p>
+
+                    <h3 class="half-title">- Response</h3>
+                    <p class="description">Este endpoint devuelve un JSON con cada endpoint y sus propiedades <br>
+                    </p>
+                    <pre class="language-json pre-line">
+                    <code id="code_1" ></code>
+                    </pre>
+                    <p class="description">Si hay fallos en la <span class="del">NO HAY
+                            FALLBACK</span></p>
+                </div>
                 <div id="singup" class="section">
                     <h1>/singup</h1>
 
@@ -238,28 +275,22 @@
                         Singup endpoint, se encarga de registrar una nueva cuenta.<br>
                     </p>
 
-                    <h3 class="half-title">- Request</h3>
+                    <h3 class="half-title">- Request <span class="post">[POST]</span></h3>
                     <p class="description">
                         Recibe dos parametros en el body,
                         <code>user</code> y <code>passw</code>
                     </p>
                     <pre class="language-json pre-line">
-                        <code >{
-                                "user": "nombre_de_usuario",
-                                "passw": "contraseña_en_texto_plano"
-                                }</code>
+                        <code id="code_2"></code>
                         </pre>
                     <h3 class="half-title">- Response</h3>
                     <p class="description">Este endpoint devuelve un JSON <br>
                         Si la cuenta fue creada de manera correcta devuelve <code>id</code> y <code>name</code>
                     </p>
                     <pre class="language-json pre-line">
-                    <code >{
-                            "id": 4,
-                            "name": "test121"
-                            }</code>
+                    <code id="code_3"></code>
                     </pre>
-                    <p class="description">Si hay fallos en la <span style="color:red;background-color:orange;">NO HAY
+                    <p class="description">Si hay fallos en la <span class="del">NO HAY
                             FALLBACK</span></p>
                 </div>
                 <div id="login" class="section">
@@ -268,31 +299,35 @@
                     <p class="description">
                         Login endpoint, se encarga de autenticar al usuario.
                     </p>
-                    <h3 class="half-title">- Request</h3>
+                    <h3 class="half-title">- Request <span class="post">[POST]</span></h3>
                     <p class="description">
                         Recibe dos parametros en el body,
                         <code>user</code> y <code>passw</code>
                     </p>
                     <pre class="language-json pre-line">
-                        <code >{
+                        <code  id="code_4">{
                                 "user": "nombre_de_usuario",
                                 "passw": "contraseña_en_texto_plano"
                                 }</code>
                     </pre>
                     <h3 class="half-title">- Response</h3>
-                    <p class="description">El endpoint login responde con JSON.<br>
+                    <p class="del">SHOULD SET A COOKIE</p>
+                    <p style="display:none" class="description">Establece una cookie en el cliente, con la key "token" y
+                        el valor del token
+                    </p>
+                    <p class="description del">El endpoint login responde con JSON.<br>
                         Si la cuenta fue autenticada correctamente, devuelve un token.
                     </p>
                     <pre class="language-json pre-line">
-                        <code >{token:"test123.eeaykbvixaytjksgyddbzgyxehqhvrydjcvhigwiikrskbanoj"}</code>
+                        <code id="code_5">{token:"test123.eeaykbvixaytjksgyddbzgyxehqhvrydjcvhigwiikrskbanoj"}</code>
                     </pre>
                     <p class="description">
                         El token se compone de dos partes, separadas por un punto(.).<br>
                         A la izquierda, el nombre de usuario, a la derecha una string de 50 caracteres auto-generados
                         aleatoreamente<br><br>
-                        Si hay fallos en la autenticacion devuelve un JSON
-                    <pre class="language-json"><code>{"auth error"}</code></pre>
-                    </p>
+                        Si hay fallos en la autenticacion devuelve un JSON</p>
+                    <pre id="code_6" class="language-json"><code>{"auth error"}</code></pre>
+
                 </div>
 
 
@@ -303,7 +338,48 @@
                 Powered By CORE </p>
         </div>
     </div>
+    <script>
+        function add_code(id, code) {
 
+            tag = document.querySelector(`#${id}`)
+            tag.innerHTML = code.replace(/^\s{16}/gm, '')
+        }
+        code1 = `"/endpoint": { # la ruta que recibe la peticion
+                    "method": "PUT", # metodo de la peticion
+                    "options": {
+                        "key": { # nombre de la clave
+                            "type": "int", # tipo de valor que acepta key
+                            "description": "descripcion de 'key'", # breve descripcion de key
+                        },
+                        "ke2": { # nombre de la clave
+                            "type": "string(255)", # tipo de valor que acepta key2
+                            "description": "descripcion de key2", # breve descripcion de key2
+                        },
+                },`
+        code2 = `{
+                    "user": "nombre_de_usuario",
+                    "passw": "contraseña_en_texto_plano"
+                }`
+        code3 = `{
+                    "id": 4,
+                    "name": "test121"
+                }`
+        code4 = `{
+                    "user": "nombre_de_usuario",
+                    "passw": "contraseña_en_texto_plano"
+                }`
+        code5 = `{
+                    token:"test123.eeaykbvixaytjksgyddbzgyxehqhvrydjcvhigwiikrskbanoj"
+                }`
+
+        add_code("code_1", code1)
+        add_code("code_2", code2)
+        add_code("code_3", code3)
+        add_code("code_4", code4)
+        add_code("code_5", code5)
+        add_code("code_6", code6)
+
+    </script>
 
 </body>
 
