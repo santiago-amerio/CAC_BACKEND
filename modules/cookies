@@ -1,0 +1,31 @@
+from flask import make_response, jsonify, request
+
+def login(user, request):
+    try:
+        if user.passw == request["passw"] and user.name == request["name"]:
+            letters = string.ascii_lowercase
+            token = user.name + "." + "".join(random.choice(letters) for i in range(50))
+
+            response = make_response(jsonify({"message": "Login successful"}))
+            response.set_cookie("token", token, max_age=expiration_delay.total_seconds(), secure=True)
+            return response
+        else:
+            return jsonify({"message": "Invalid credentials"}), 401
+    except:
+        return jsonify({"message": "Error occurred"}), 500
+
+
+def needs_auth_decorator(db, User, Token):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            token = request.cookies.get('token')  # Obtener el token de la cookie
+
+            if check_user_token(db, User, Token, token):
+                return func(*args, **kwargs)
+            else:
+                return jsonify({"message": "Authentication failed"}), 401
+
+        return wrapper
+
+    return decorator
