@@ -1,0 +1,10 @@
+fetch('url_del_backend', {
+  method: 'GET',
+  credentials: 'include'
+})
+  .then(response => {
+    // Manejar la respuesta del backend
+  })
+  .catch(error => {
+    // Manejar errores
+  });
