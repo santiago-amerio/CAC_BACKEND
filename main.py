@@ -52,11 +52,11 @@ class User(db.Model):  # la clase Producto hereda de db.Model
     admin = db.Column(db.Boolean)
     active = db.Column(db.Boolean)
 
-    def __init__(self, name, passw, admin=False):
+    def __init__(self, name, passw, admin=False, active=True):
         self.name = name
         self.passw = passw
         self.admin = admin
-        self.active = True
+        self.active = active
 
 
 class Token(db.Model):  # la clase Producto hereda de db.Model
@@ -78,15 +78,17 @@ class Producto(db.Model):  # la clase Producto hereda de db.Model
     imagen = db.Column(db.String(400))
     description = db.Column(db.String(500))
     categoria = db.Column(db.Integer, db.ForeignKey("category.id"))
+    active = db.Column(db.Boolean)
 
     def __init__(
-        self, modelo, precio, imagen, description, categoria
+        self, modelo, precio, imagen, description, categoria, active=True
     ):  # crea el  constructor de la clase
         self.modelo = modelo  # no hace falta el id porque lo crea sola mysql por ser auto_incremento
         self.precio = precio
         self.imagen = imagen
         self.description = description
         self.categoria = categoria
+        self.active = active
 
 
 class Category(db.Model):
@@ -94,11 +96,15 @@ class Category(db.Model):
     titulo = db.Column(db.String(100), unique=True)
     description = db.Column(db.String(1000))
     imagen = db.Column(db.String(400))
+    active = db.Column(db.Boolean)
 
-    def __init__(self, titulo, imagen, description):  # crea el  constructor de la clase
+    def __init__(
+        self, titulo, imagen, description, active=True
+    ):  # crea el  constructor de la clase
         self.titulo = titulo  # no hace falta el id porque lo crea sola mysql por ser auto_incremento
         self.description = description
         self.imagen = imagen
+        self.active = active
 
 
 def initialize_root(name, passw):
@@ -119,7 +125,15 @@ with app.app_context():
 #  ************************************************************
 class ProductoSchema(ma.Schema):
     class Meta:
-        fields = ("id", "modelo", "precio", "imagen", "categoria")
+        fields = (
+            "id",
+            "modelo",
+            "precio",
+            "imagen",
+            "description",
+            "categoria",
+            "active",
+        )
 
 
 producto_schema = (
@@ -148,6 +162,19 @@ class TokenSchema(ma.Schema):
 
 token_schema = TokenSchema()  # El objeto producto_schema es para traer un producto
 tokens_schema = TokenSchema(
+    many=True
+)  # El objeto productos_schema es para traer multiples registros de producto
+
+
+class CategorySchema(ma.Schema):
+    class Meta:
+        fields = ("id", "titulo", "description", "imagen", "active")
+
+
+category_schema = (
+    CategorySchema()
+)  # El objeto producto_schema es para traer un producto
+categories_schema = CategorySchema(
     many=True
 )  # El objeto productos_schema es para traer multiples registros de producto
 
@@ -184,6 +211,16 @@ class Routes:
                     self.__delete_category,
                 ],
             },
+            {
+                "endpoint": "product",
+                "method": ["GET", "POST", "PATCH", "DELETE"],
+                "function": [
+                    self.__get_product,
+                    self.__post_product,
+                    self.__patch_product,
+                    self.__delete_product,
+                ],
+            },
         ]
 
         self.register_routes()
@@ -202,23 +239,6 @@ class Routes:
                 self.app.add_url_rule(
                     f"/{rule['endpoint']}", view_func=function, methods=[method]
                 )
-
-        self.app.add_url_rule(
-            "/productos", view_func=self.get_Productos, methods=["GET"]
-        )
-        self.app.add_url_rule(
-            "/productos/<id>", view_func=self.get_producto, methods=["GET"]
-        )
-
-        self.app.add_url_rule(
-            "/productos/<id>", view_func=self.delete_producto, methods=["DELETE"]
-        )
-        self.app.add_url_rule(
-            "/productos", view_func=self.create_product, methods=["POST"]
-        )
-        self.app.add_url_rule(
-            "/productos/<id>", view_func=self.update_producto, methods=["PUT"]
-        )
         self.app.add_url_rule(
             "/clear_tokens", view_func=self.clear_tokens, methods=["GET"]
         )
@@ -346,17 +366,119 @@ class Routes:
         db.session.commit()
         return producto_schema.jsonify(user)
 
+    ##################### category functions
+
     def __get_category(self):
-        return
+        title = request.args.get("titulo")
+        print(title)
+        if title:
+            query = Category.query.filter_by(titulo=title).first()
 
+            serialized_data = category_schema.dump(query)
+            return serialized_data
+        else:
+            response = Category.query.all()
+            response = categories_schema.dump(response)
+            return jsonify(response)
+
+    # all_productos = Producto.query.all()
+    # result = productos_schema.dump(all_productos)
+    # return jsonify(result)
+    @needs_auth_decorator(db, User, Token, request)
     def __post_category(self):
-        return
+        title = request.json["titulo"]
+        description = request.json["descripcion"]
+        img_url = request.json["imagen"]
 
+        new_category = Category(title, img_url, description)
+        db.session.add(new_category)
+        try:
+            db.session.commit()
+        except:
+            return "categoria ya existe?"
+        response = Category.query.filter_by(titulo=title).first()
+
+        return category_schema.jsonify(response)
+
+    @needs_auth_decorator(db, User, Token, request)
     def __patch_category(self):
-        return
+        json = request.json
+        if not "id" in json:
+            return "necesitas la id de la categoria para actualizarla"
+        cat = Category.query.filter_by(id=json["id"])
+        if "titulo" in json:
+            cat.titulo = json["titulo"]
 
+        if "descripcion" in json:
+            cat.description = json["descripcion"]
+
+        if "imagen" in json:
+            cat.imagen = json["imagen"]
+
+        db.session.commit()
+        data = Category.query.get(json["id"])
+        dump = category_schema.dump(data)
+        return dump
+
+    @needs_auth_decorator(db, User, Token, request)
     def __delete_category(self):
-        return
+        if not "id" in request.json:
+            return "proporciona la id de la categoria a desactivar"
+        category_id = request.json["id"]
+        category = Category.query.filter_by(id=category_id).first()
+        category.active = False
+        db.session.commit()
+        return category_schema.jsonify(category)
+
+    def __get_product(self):
+        json = request.json
+        query = False
+        if "modelo" in json:
+            query = Producto.query.filter_by(modelo=json["modelo"]).first()
+        elif "id" in json:
+            query = Producto.query.filter_by(id=json["id"]).first()
+        if query:
+            serialized_data = producto_schema.dump(query)
+            return serialized_data
+        elif "categoria" in json:
+            response = Producto.query.filter_by(categoria=json["categoria"]).all()
+            response = productos_schema.dump(response)
+            return jsonify(response)
+        else:
+            response = Producto.query.all()
+            response = productos_schema.dump(response)
+            return jsonify(response)
+
+    def __post_product(self):
+        json = request.json
+        model = json["modelo"]
+        price = json["precio"]
+        img = json["imagen"]
+        description = json["descripcion"]
+        category = json["categoria"]
+        category_exist = Category.query.filter_by(id=category).first()
+
+        is_in_db = Producto.query.filter_by(modelo=model).first()
+        if not category_exist:
+            return "la categoria no existe, por favor crea la categoria primero."
+        if is_in_db:
+            return "producto ya existe."
+        new_product = Producto(model, price, img, description, category)
+        db.session.add(new_product)
+        try:
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            return "Ocurrio un error al insertar en la base de datos"
+        response = Producto.query.filter_by(modelo=model).first()
+
+        return producto_schema.jsonify(response)
+
+    def __patch_product(self):
+        return "test"
+
+    def __delete_product(self):
+        return "test"
 
 
 # Create the routes
