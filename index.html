@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cargar Máquinas</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <link rel="stylesheet" href="styles.css">
+
+  </head>
+  <body>
+    <div id="app">
+      <h1>Cargar Máquinas</h1>
+      <form @submit.prevent="agregarMaquina">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" v-model="nuevaMaquina.nombre" required>
+        
+        <label for="tipo">Tipo:</label>
+        <input type="text" id="tipo" v-model="nuevaMaquina.tipo" required>
+        
+        <label for="precio">Precio:</label>
+        <input type="number" id="precio" v-model="nuevaMaquina.precio" required>
+        
+        <button type="submit">Agregar Máquina</button>
+      </form>
+
+      <h2>Lista de Máquinas</h2>
+      <ul>
+        <li v-for="maquina in maquinas" :key="maquina.id">
+          <h3>{{ maquina.nombre }}</h3>
+          <p>Tipo: {{ maquina.tipo }}</p>
+          <p>Precio: ${{ maquina.precio }}</p>
+        </li>
+      </ul>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
