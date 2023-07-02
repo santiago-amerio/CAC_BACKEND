@@ -1,27 +1,27 @@
 from datetime import datetime, timedelta
-from flask import jsonify,make_response
+from flask import jsonify, make_response
 from collections import defaultdict
 import random
 import string
 from functools import wraps
+
 # tiempo que el token es valido para autenticacion
 expiration_delay = timedelta(days=30)
 
 
 def check_user_token(db, User, Token, request):
-    token = request.json["token"]
+    token = request.cookies["token"]
     user = token.split(".")[0]
-
     result = db.session.query(User, Token).filter_by(name=user).join(User).all()
 
-    for _, db_token in result:
+    for db_user, db_token in result:
         if token == db_token.token:
             # si encuentra un token igual al del cliente chequea la expiracion del token
             if datetime.now() - expiration_delay < db_token.creation_date:
                 # si el tiempo de ahora menos expiration_delay delta, es menor
                 # quiere decir que el token para login sigue vigente, al pasar
                 # expiration_delay cantidad de tiempo, el token deja de funcionar
-                return True
+                return (True, db_user.admin)
     # cuando no encuentra un token igual al del del cliente
     # devuelve False
     return False
@@ -29,25 +29,32 @@ def check_user_token(db, User, Token, request):
 
 def login(user, request):
     try:
-        print(user.passw == request["passw"] and user.name == request["name"])
-        if user.passw == request["passw"] and user.name == request["name"]:
+        if (
+            user.passw == request["passw"]
+            and user.name == request["name"]
+            and user.active
+        ):
             letters = string.ascii_lowercase
             token = user.name + "." + "".join(random.choice(letters) for i in range(50))
 
             response = make_response(jsonify({"message": "Login successful"}))
-            print("resp",response)
-            response.set_cookie("token", token, max_age=expiration_delay.total_seconds(), secure=True)
-            print("resp",response)
-            return response
+
+            response.set_cookie(
+                "token", token, max_age=expiration_delay.total_seconds(), secure=True
+            )
+            response.set_cookie(
+                "is_admin", str(user.admin), max_age=expiration_delay.total_seconds(), secure=True
+            )
+            return (response, token)
         else:
             response = jsonify({"message": "Invalid credentials"})
             response.status_code = 401
-            return response
-    except:
-        response = jsonify({"message": "Error occurred"})
+            return (response, user.name)
+    except Exception as e:
+        print(e)
+        response = jsonify({"error": "Error occurred"})
         response.status_code = 500
-        return response
-
+        return (response, user.name)
 
 
 def clear_timed_out_tokens(db, Token):
@@ -70,17 +77,51 @@ def clear_timed_out_tokens(db, Token):
     return cleared_tokens
 
 
-def needs_auth_decorator(db, User, Token, request):
+def needs_auth_decorator(db, User, Token, request, admin=False):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            if check_user_token(db, User, Token, request):
-                return func(*args, **kwargs)
+            if "token" not in request.cookies:
+                return 'Error, cookie "token" no encontrada, iniciaste sesion? '
+            authenticated, is_admin = check_user_token(db, User, Token, request)
+            if authenticated:
+                if not admin:
+                    return func(*args, **kwargs)
+                else:
+                    if is_admin:
+                        return func(*args, **kwargs)
+                    else:
+                        return "permisos_insuficientes"
             else:
-                # Authentication failed, handle accordingly
-                return "auth_error"  # or raise an exception
+                # Authentication failed
+                return "auth_error"
 
-        print(wrapper)
         return wrapper
 
     return decorator
+
+
+def clear_user_token(db, User, Token, user_name):
+    user = User.query.filter_by(name=user_name).first()
+    if user:
+        Token.query.filter_by(user_id=user.id).delete()
+        db.session.commit()
+        return "tokens eliminados"
+    return "error"
+
+
+def create_user(User, request, db):
+    name = request.json["name"]
+    passw = request.json["passw"]
+    new_user = User(name, passw)
+    db.session.add(new_user)
+    try:
+        db.session.commit()
+    except:
+        return "ocurrio algun error, quizas nombre duplicado?"
+    return f"usuario {request.json['name']} creado"
+
+
+def generate_password():
+    letters = string.ascii_lowercase
+    return "".join(random.choice(letters) for i in range(5))
