@@ -5,11 +5,15 @@ import random
 import string
 from functools import wraps
 
+from modules.db_connection import db, User, Token
+
+
+
 # tiempo que el token es valido para autenticacion
 expiration_delay = timedelta(days=30)
 
 
-def check_user_token(db, User, Token, request):
+def check_user_token(request):
     token = request.cookies["token"]
     user = token.split(".")[0]
     result = db.session.query(User, Token).filter_by(name=user).join(User).all()
@@ -77,13 +81,13 @@ def clear_timed_out_tokens(db, Token):
     return cleared_tokens
 
 
-def needs_auth_decorator(db, User, Token, request, admin=False):
+def needs_auth_decorator(request,admin=False):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             if "token" not in request.cookies:
                 return 'Error, cookie "token" no encontrada, iniciaste sesion? '
-            authenticated, is_admin = check_user_token(db, User, Token, request)
+            authenticated, is_admin = check_user_token(request)
             if authenticated:
                 if not admin:
                     return func(*args, **kwargs)

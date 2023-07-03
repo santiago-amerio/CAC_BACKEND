@@ -215,6 +215,28 @@
             font-weight: bolder;
             background-color: yellow;
         }
+
+        .req {
+            padding-left: .5rem;
+            border-left: 1px solid;
+
+        }
+
+        .content-get {
+            border-color: green;
+        }
+
+        .content-post {
+            border-color: #51abfa;
+        }
+
+        .content-delete {
+            border-color: tomato;
+        }
+
+        .content-patch {
+            border-color: yellow;
+        }
     </style>
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/gh/highlightjs/highlight.js@main/src/styles/tokyo-night-dark.css">
@@ -252,61 +274,64 @@
                     <img src="https://i.postimg.cc/GtQFmYGv/CORE-WEB-SOLUTIONS-w.png" alt="API Logo">
                 </div>
                 <div id="root" class="section">
-                    <h1>/</h1>
 
+                    <h1>/</h1>
                     <p class="description">
                         Root endpoint '/' muestra opciones de la API<br>
                         GET: te trae a esta pagina.<br>
                         POST: devuelve un JSON con todas las opciones de la API
                     </p>
+                    <div class="content-post req ">
+                        <h3 class="half-title">- Request <span class="post">[POST]</span></h3>
+                        <p class="description">
+                            no necesita body
+                        </p>
 
-                    <h3 class="half-title">- Request <span class="post">[POST]</span></h3>
-                    <p class="description">
-                        no necesita body
-                    </p>
-
-                    <h4 class="half-title">- Response</h4>
-                    <p class="description">Este endpoint devuelve un JSON con cada endpoint y sus propiedades <br>
-                    </p>
-                    <pre class="language-json pre-line">
-                    <code id="code_1" ></code>
-                    </pre>
-                    <p class="description">Si hay fallos en la <span class="del">NO HAY
-                            FALLBACK</span></p>
+                        <h4 class="half-title">- Response</h4>
+                        <p class="description">Este endpoint devuelve un JSON con cada endpoint y sus propiedades <br>
+                        </p>
+                        <pre class="language-json pre-line">
+                            <code id="code_1" ></code>
+                        </pre>
+                        <p class="description">Si hay fallos en la <span class="del">NO HAY
+                                FALLBACK</span></p>
+                    </div>
                 </div>
 
 
                 <div id="login" class="section">
                     <h1>/login</h1>
+                    <div class="content-post req ">
+                        <p class="description">
+                            Login endpoint, se encarga de autenticar al usuario.
+                        </p>
 
-                    <p class="description">
-                        Login endpoint, se encarga de autenticar al usuario.
-                    </p>
-                    <h3 class="half-title">- Request <span class="post">[POST]</span></h3>
-                    <p class="description">
-                        Recibe dos parametros en el body,
-                        <code>user</code> y <code>passw</code>
-                    </p>
-                    <pre class="language-json pre-line">
+                        <h3 class="half-title">- Request <span class="post">[POST]</span></h3>
+                        <p class="description">
+                            Recibe dos parametros en el body,
+                            <code>user</code> y <code>passw</code>
+                        </p>
+                        <pre class="language-json pre-line">
                         <code  id="code_2"></code>
                     </pre>
-                    <h4 class="half-title">- Response</h4>
-                    <p class="description">Setea 2 cookies, admin y token <br>
-                        "token" se encarga de la autenticacion del usuario en el backend<br>
-                        "admin" es una cookie para la identificacion de los adminsitradores en el frontend
-                        <br>
-                        estructura del token:
-                    </p>
-                    <pre class="language-json pre-line">
+                        <h4 class="half-title">- Response</h4>
+                        <p class="description">Setea 2 cookies, admin y token <br>
+                            "token" se encarga de la autenticacion del usuario en el backend<br>
+                            "admin" es una cookie para la identificacion de los adminsitradores en el frontend
+                            <br>
+                            estructura del token:
+                        </p>
+                        <pre class="language-json pre-line">
                         <code id="code_3"></code>
                     </pre>
-                    <p class="description">
-                        El token se compone de dos partes, separadas por un punto(.).<br>
-                        A la izquierda, el nombre de usuario, a la derecha una string de 50 caracteres auto-generados
-                        aleatoreamente<br><br>
-                        Si hay fallos en la autenticacion devuelve un JSON</p>
-                    <pre class="language-json"><code>{"auth error"}</code></pre>
-
+                        <p class="description">
+                            El token se compone de dos partes, separadas por un punto(.).<br>
+                            A la izquierda, el nombre de usuario, a la derecha una string de 50 caracteres
+                            auto-generados
+                            aleatoreamente<br><br>
+                            Si hay fallos en la autenticacion devuelve un JSON</p>
+                        <pre class="language-json"><code>{"auth error"}</code></pre>
+                    </div>
                 </div>
 
                 <div id="user" class="section">
@@ -315,77 +340,105 @@
                         User endpoint, se encarga manejo de cuentas de empleados.<br>
                     </p>
                     <hr>
-                    <h3 class="half-title">- Request <span class="get">[GET]</span></h3>
-                    <p class="description">
-                        Recibe 0 o 1 parametro en la URL
-                    </p>
-                    <pre class="language-json pre-line">
+                    <div class="content-get req ">
+                        <h3 class="half-title">- Request <span class="get">[GET]</span></h3>
+                        <p class="description">
+                            Recibe 0 o 1 parametro en la URL
+                        </p>
+                        <pre class="language-json pre-line">
                         <code id="code_4"></code>
                         </pre>
-                    <h4 class="half-title">- Response</h4>
-                    <p class="description">Este endpoint devuelve un JSON <br>
-                        Si la cuenta fue creada de manera correcta devuelve <code>id</code> y <code>name</code>
-                    </p>
-                    <pre class="language-json pre-line">
+                        <h4 class="half-title">- Response</h4>
+                        <p class="description">Este endpoint devuelve un JSON <br>
+                            Si la cuenta fue creada de manera correcta devuelve <code>id</code> y <code>name</code>
+                        </p>
+                        <pre class="language-json pre-line">
                             <code id="code_5"></code>
                         </pre>
-                    <p class="description">Si no encuentra el usuario devuelve un objeto vacio: <code>{}</code></p>
+                        <p class="description">Si no encuentra el usuario devuelve un objeto vacio: <code>{}</code></p>
+
+                    </div>
                     <hr>
-                    <h3 class="half-title">- Request <span class="post">[POST]</span></h3>
-                    <p class="description">
-                        Recibe 1 parametro en el body
-                    </p>
-                    <pre class="language-json pre-line">
+                    <div class="content-post req ">
+                        <h3 class="half-title">- Request <span class="post">[POST]</span></h3>
+                        <p class="description">
+                            Recibe 1 parametro en el body
+                        </p>
+                        <pre class="language-json pre-line">
                             <code id="code_6"></code>
                         </pre>
-                    <h4 class="half-title">- Response</h4>
-                    <p class="description">Este endpoint devuelve un JSON <br>
-                        Si la cuenta fue creada de manera correcta devuelve <code>id</code>, <code>name</code> y
-                        <code>passw</code>
-                        <br>la contraseña es auto-generada en el backend
-                    </p>
-                    <pre class="language-json pre-line">
+                        <h4 class="half-title">- Response</h4>
+                        <p class="description">Este endpoint devuelve un JSON <br>
+                            Si la cuenta fue creada de manera correcta devuelve <code>id</code>, <code>name</code> y
+                            <code>passw</code>
+                            <br>la contraseña es auto-generada en el backend
+                        </p>
+                        <pre class="language-json pre-line">
                         <code id="code_7"></code>
                     </pre>
+                    </div>
                     <hr>
-                    <h3 class="half-title">- Request <span class="patch">[PATCH]</span></h3>
-                    <p class="description">
-                        recibe dos o mas parametros
-                        <br> <code>user</code> (nombre de usuario){no modificable, se envia como referencia}
-                        <br> <code>passw </code>(nueva contraseña usuario)
-                        <br> <code>active</code>(desactiva la cuenta {0})
-                        <br> <code>admin</code> (da permisos de administrador {1})
-                    </p>
-                    <pre class="language-json pre-line">
+                    <div class="content-patch req ">
+                        <h3 class="half-title">- Request <span class="patch">[PATCH]</span></h3>
+                        <p class="description">
+                            recibe dos o mas parametros
+                            <br> <code>user</code> (nombre de usuario){no modificable, se envia como referencia}
+                            <br> <code>passw </code>(nueva contraseña usuario)
+                            <br> <code>active</code>(desactiva la cuenta {0})
+                            <br> <code>admin</code> (da permisos de administrador {1})
+                        </p>
+                        <pre class="language-json pre-line">
                             <code id="code_8"></code>
                         </pre>
-                    <h4 class="half-title">- Response</h4>
-                    <p class="description">devuelve un mensaje de error o exito.</p>
-
+                        <h4 class="half-title">- Response</h4>
+                        <p class="description">devuelve un mensaje de error o exito.</p>
+                    </div>
                     <hr>
-                    <h3 class="half-title">- Request <span class="delete">[DELETE]</span></h3>
-                    <p class="description">
-                        recibe 1 parametro
-                    </p>
-                    <pre class="language-json pre-line">
-                        <code id="code_9"></code>
-                    </pre>
+                    <div class="content-delete req ">
+                        <h3 class="half-title">- Request <span class="delete">[DELETE]</span></h3>
+                        <p class="description">
+                            recibe 1 parametro
+                        </p>
+                        <pre class="language-json pre-line">
+                            <code id="code_9"></code>
+                        </pre>
 
-                    <h4 class="half-title">- Response</h4>
-                    <p class="description">devuelve un objeto con los datos del usuario desactivado</p>
-                    <pre class="language-json pre-line">
+                        <h4 class="half-title">- Response</h4>
+                        <p class="description">devuelve un objeto con los datos del usuario desactivado</p>
+                        <pre class="language-json pre-line">
+                            <code id="code_10"></code>
+                        </pre>
+
+                    </div>
+                </div>
+                <div id="product" class="section">
+
+                    <h1>/product</h1>
+                    <div class="content-get req">
+                        <h3 class="half-title">- Request <span class="get">[GET]</span></h3>
+                        <p class="description">
+                            recibe 1 parametro
+                        </p>
+                        <pre class="language-json pre-line">
+                            <code id="code_9"></code>
+                        </pre>
+
+                        <h4 class="half-title">- Response</h4>
+                        <p class="description">devuelve un objeto con los datos del usuario desactivado</p>
+                        <pre class="language-json pre-line">
                         <code id="code_10"></code>
                     </pre>
+                    </div>
                 </div>
-
-
-
             </div>
+
+
         </div>
-        <div>
-            <p class="table-footer">
-                Powered By CORE </p>
-        </div>
+    </div>
+    <div>
+        <p class="table-footer">
+            Powered By CORE </p>
+    </div>
     </div>
     <script>
         function add_code(id, code) {
