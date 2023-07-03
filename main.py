@@ -229,8 +229,6 @@ class Routes_product(Routes):
         ]
         self.register_routes(self.routes)
 
-
-    
     def __get_product(self):
         json = request.json
         query = False
@@ -249,7 +247,8 @@ class Routes_product(Routes):
             response = Producto.query.all()
             response = productos_schema.dump(response)
             return jsonify(response)
-    @needs_auth_decorator(request,admin=True)
+
+    @needs_auth_decorator(request, admin=True)
     def __post_product(self):
         json = request.json
         model = json["modelo"]
@@ -274,10 +273,12 @@ class Routes_product(Routes):
         response = Producto.query.filter_by(modelo=model).first()
 
         return producto_schema.jsonify(response)
-    @needs_auth_decorator(request,admin=True)
+
+    @needs_auth_decorator(request, admin=True)
     def __patch_product(self):
         return "test"
-    @needs_auth_decorator(request,admin=True)
+
+    @needs_auth_decorator(request, admin=True)
     def __delete_product(self):
         return "test"
 
@@ -295,9 +296,14 @@ class Routes_default(Routes):
                 ],
             },
             {
-                "endpoint": "/",
+                "endpoint": "/admin",
                 "method": ["GET", "POST"],
                 "function": [self.__get_home, self.__post_home],
+            },
+            {
+                "endpoint": "/",
+                "method": ["GET"],
+                "function": [self.__get_home_login],
             },
             {
                 "endpoint": "login",
@@ -311,6 +317,9 @@ class Routes_default(Routes):
         # self.app.add_url_rule("/", view_func=self.__get_home, methods=["GET"])
         self.register_routes(self.routes)
 
+    def __get_home_login(self):
+        return render_template("login.html")
+
     def __post_login(self):
         name = request.json["name"]
         user = User.query.filter_by(name=name).first()
@@ -322,13 +331,16 @@ class Routes_default(Routes):
             return response
         else:
             return response.json
-    @needs_auth_decorator(request,admin=True)
+
+    @needs_auth_decorator(request, admin=True)
     def __get_clear_tokens(self):
         return auth.clear_timed_out_tokens(db, Token)
-    @needs_auth_decorator(request,admin=True)
+    
+    @needs_auth_decorator(request, admin=True)
     def __post_home(self):
         return instructions_post()
-    @needs_auth_decorator(request,admin=True)
+
+    @needs_auth_decorator(request, admin=True)
     def __get_home(self):
         return render_template(
             "instructions_template.html", instructions=instructions_post()

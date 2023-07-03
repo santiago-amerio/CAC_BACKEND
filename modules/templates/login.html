@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <form method="POST">
+        <input type="text" placeholder="usuario" id="user">
+        <input type="password" name="contraseña" id="passw" placeholder="contraseña">
+        <input id="submit" type="button" value="submit">
+    </form>
+    <script>
+        document.querySelector("#submit")
+            .addEventListener("click", function () {
+                let user = document.querySelector("#user").value
+                let passw = document.querySelector("#passw").value
+                fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ "name": user, passw: passw })
+                })
+                    .then(response => response.json())
+                    .then(response => {window.location.href = "/admin"})
+            });
+
+    </script>
+</body>
+
+</html>
