@@ -28,7 +28,7 @@ def check_user_token(request):
                 return (True, db_user.admin)
     # cuando no encuentra un token igual al del del cliente
     # devuelve False
-    return False
+    return (False,False)
 
 
 def login(user, request):

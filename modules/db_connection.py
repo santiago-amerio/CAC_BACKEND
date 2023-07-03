@@ -84,7 +84,6 @@ class Category(db.Model):
     description = db.Column(db.String(1000))
     imagen = db.Column(db.String(400))
     active = db.Column(db.Boolean)
-
     def __init__(
         self, titulo, imagen, description, active=True
     ):  # crea el  constructor de la clase
