@@ -141,10 +141,14 @@
             display: block;
         }
 
+        pre {
+            display: flex;
+        }
+
         code {
 
             padding: 2px 4px;
-            margin-right: .5rem;
+
             font-family: Consolas, Monaco, 'Courier New', monospace;
             font-size: 14px;
             background-color: #1a1b26;
@@ -191,7 +195,7 @@
         }
 
         .get {
-            color: gray;
+            color: green;
         }
 
         .post {
@@ -202,7 +206,7 @@
             color: tomato;
         }
 
-        .put {
+        .patch {
             color: yellow;
         }
 
@@ -232,15 +236,17 @@
                         <a class="anchor-link" href="#root">
                             <li class="endpoint">/</li>
                         </a>
-                        <a class="anchor-link" href="#singup">
-                            <li class="endpoint">/singup</li>
-                        </a>
                         <a class="anchor-link" href="#login">
                             <li class="endpoint">/login</li>
                         </a>
+                        <a class="anchor-link" href="#user">
+                            <li class="endpoint">/user</li>
+                        </a>
+
                     </ul>
                 </div>
             </div>
+
             <div id="sections">
                 <div id="main" class="api-logo">
                     <img src="https://i.postimg.cc/GtQFmYGv/CORE-WEB-SOLUTIONS-w.png" alt="API Logo">
@@ -259,7 +265,7 @@
                         no necesita body
                     </p>
 
-                    <h3 class="half-title">- Response</h3>
+                    <h4 class="half-title">- Response</h4>
                     <p class="description">Este endpoint devuelve un JSON con cada endpoint y sus propiedades <br>
                     </p>
                     <pre class="language-json pre-line">
@@ -268,31 +274,8 @@
                     <p class="description">Si hay fallos en la <span class="del">NO HAY
                             FALLBACK</span></p>
                 </div>
-                <div id="singup" class="section">
-                    <h1>/singup</h1>
 
-                    <p class="description">
-                        Singup endpoint, se encarga de registrar una nueva cuenta.<br>
-                    </p>
 
-                    <h3 class="half-title">- Request <span class="post">[POST]</span></h3>
-                    <p class="description">
-                        Recibe dos parametros en el body,
-                        <code>user</code> y <code>passw</code>
-                    </p>
-                    <pre class="language-json pre-line">
-                        <code id="code_2"></code>
-                        </pre>
-                    <h3 class="half-title">- Response</h3>
-                    <p class="description">Este endpoint devuelve un JSON <br>
-                        Si la cuenta fue creada de manera correcta devuelve <code>id</code> y <code>name</code>
-                    </p>
-                    <pre class="language-json pre-line">
-                    <code id="code_3"></code>
-                    </pre>
-                    <p class="description">Si hay fallos en la <span class="del">NO HAY
-                            FALLBACK</span></p>
-                </div>
                 <div id="login" class="section">
                     <h1>/login</h1>
 
@@ -305,30 +288,96 @@
                         <code>user</code> y <code>passw</code>
                     </p>
                     <pre class="language-json pre-line">
-                        <code  id="code_4">{
-                                "user": "nombre_de_usuario",
-                                "passw": "contraseña_en_texto_plano"
-                                }</code>
+                        <code  id="code_2"></code>
                     </pre>
-                    <h3 class="half-title">- Response</h3>
-                    <p class="del">SHOULD SET A COOKIE</p>
-                    <p style="display:none" class="description">Establece una cookie en el cliente, con la key "token" y
-                        el valor del token
-                    </p>
-                    <p class="description del">El endpoint login responde con JSON.<br>
-                        Si la cuenta fue autenticada correctamente, devuelve un token.
+                    <h4 class="half-title">- Response</h4>
+                    <p class="description">Setea 2 cookies, admin y token <br>
+                        "token" se encarga de la autenticacion del usuario en el backend<br>
+                        "admin" es una cookie para la identificacion de los adminsitradores en el frontend
+                        <br>
+                        estructura del token:
                     </p>
                     <pre class="language-json pre-line">
-                        <code id="code_5">{token:"test123.eeaykbvixaytjksgyddbzgyxehqhvrydjcvhigwiikrskbanoj"}</code>
+                        <code id="code_3"></code>
                     </pre>
                     <p class="description">
                         El token se compone de dos partes, separadas por un punto(.).<br>
                         A la izquierda, el nombre de usuario, a la derecha una string de 50 caracteres auto-generados
                         aleatoreamente<br><br>
                         Si hay fallos en la autenticacion devuelve un JSON</p>
-                    <pre id="code_6" class="language-json"><code>{"auth error"}</code></pre>
+                    <pre class="language-json"><code>{"auth error"}</code></pre>
 
                 </div>
+
+                <div id="user" class="section">
+                    <h1>/user</h1>
+                    <p class="description">
+                        User endpoint, se encarga manejo de cuentas de empleados.<br>
+                    </p>
+                    <hr>
+                    <h3 class="half-title">- Request <span class="get">[GET]</span></h3>
+                    <p class="description">
+                        Recibe 0 o 1 parametro en la URL
+                    </p>
+                    <pre class="language-json pre-line">
+                        <code id="code_4"></code>
+                        </pre>
+                    <h4 class="half-title">- Response</h4>
+                    <p class="description">Este endpoint devuelve un JSON <br>
+                        Si la cuenta fue creada de manera correcta devuelve <code>id</code> y <code>name</code>
+                    </p>
+                    <pre class="language-json pre-line">
+                            <code id="code_5"></code>
+                        </pre>
+                    <p class="description">Si no encuentra el usuario devuelve un objeto vacio: <code>{}</code></p>
+                    <hr>
+                    <h3 class="half-title">- Request <span class="post">[POST]</span></h3>
+                    <p class="description">
+                        Recibe 1 parametro en el body
+                    </p>
+                    <pre class="language-json pre-line">
+                            <code id="code_6"></code>
+                        </pre>
+                    <h4 class="half-title">- Response</h4>
+                    <p class="description">Este endpoint devuelve un JSON <br>
+                        Si la cuenta fue creada de manera correcta devuelve <code>id</code>, <code>name</code> y
+                        <code>passw</code>
+                        <br>la contraseña es auto-generada en el backend
+                    </p>
+                    <pre class="language-json pre-line">
+                        <code id="code_7"></code>
+                    </pre>
+                    <hr>
+                    <h3 class="half-title">- Request <span class="patch">[PATCH]</span></h3>
+                    <p class="description">
+                        recibe dos o mas parametros
+                        <br> <code>user</code> (nombre de usuario){no modificable, se envia como referencia}
+                        <br> <code>passw </code>(nueva contraseña usuario)
+                        <br> <code>active</code>(desactiva la cuenta {0})
+                        <br> <code>admin</code> (da permisos de administrador {1})
+                    </p>
+                    <pre class="language-json pre-line">
+                            <code id="code_8"></code>
+                        </pre>
+                    <h4 class="half-title">- Response</h4>
+                    <p class="description">devuelve un mensaje de error o exito.</p>
+
+                    <hr>
+                    <h3 class="half-title">- Request <span class="delete">[DELETE]</span></h3>
+                    <p class="description">
+                        recibe 1 parametro
+                    </p>
+                    <pre class="language-json pre-line">
+                        <code id="code_9"></code>
+                    </pre>
+
+                    <h4 class="half-title">- Response</h4>
+                    <p class="description">devuelve un objeto con los datos del usuario desactivado</p>
+                    <pre class="language-json pre-line">
+                        <code id="code_10"></code>
+                    </pre>
+                </div>
+
 
 
             </div>
@@ -361,24 +410,46 @@
                     "passw": "contraseña_en_texto_plano"
                 }`
         code3 = `{
-                    "id": 4,
-                    "name": "test121"
-                }`
-        code4 = `{
-                    "user": "nombre_de_usuario",
-                    "passw": "contraseña_en_texto_plano"
-                }`
-        code5 = `{
                     token:"test123.eeaykbvixaytjksgyddbzgyxehqhvrydjcvhigwiikrskbanoj"
                 }`
 
+        code4 = `/user?name=nombre_de_usuario`
+        code5 = `{
+                    "id": 4,
+                    "name": "nombre_de_usuario"
+                }`
+
+        code6 = `{
+                    "name": "nombre_de_usuario"
+                }`
+        code7 = `{
+                    "id": 4,
+                    "name": "nombre_de_usuario",
+                    "passw":"contraseña"
+                }`
+        code8 = `{
+                    "name": "nombre_de_usuario",
+                    "passw":"contraseña"
+                }`
+        code9 = `{
+                    "name": "nombre_de_usuario"
+                }`
+        code10 = `{
+                    "id": 4,
+                    "name": "nombre_de_usuario"
+                    "admin":false
+                    "active":false
+                }`
         add_code("code_1", code1)
         add_code("code_2", code2)
         add_code("code_3", code3)
         add_code("code_4", code4)
         add_code("code_5", code5)
         add_code("code_6", code6)
-
+        add_code("code_7", code7)
+        add_code("code_8", code8)
+        add_code("code_9", code9)
+        add_code("code_10", code10)
     </script>
 
 </body>

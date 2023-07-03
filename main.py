@@ -229,15 +229,13 @@ class Routes:
             self.initialize_root("root", "changeme")
 
     def register_routes(self):
-        # self.app.add_url_rule("/singup", view_func=self.create_user, methods=["PUT"])
-
-        for rule in self.route_list:
+        for route in self.route_list:
             list_method_funciton = list(
-                map(list, list(zip(rule["method"], rule["function"])))
+                map(list, list(zip(route["method"], route["function"])))
             )
             for method, function in list_method_funciton:
                 self.app.add_url_rule(
-                    f"/{rule['endpoint']}", view_func=function, methods=[method]
+                    f"/{route['endpoint']}", view_func=function, methods=[method]
                 )
         self.app.add_url_rule(
             "/clear_tokens", view_func=self.clear_tokens, methods=["GET"]
@@ -275,30 +273,6 @@ class Routes:
         db.session.commit()
         return producto_schema.jsonify(producto)
 
-    @needs_auth_decorator(db, User, Token, request)
-    def create_product(self):
-        nombre = request.json["nombre"]
-        precio = request.json["precio"]
-        stock = request.json["stock"]
-        imagen = request.json["imagen"]
-        new_producto = Producto(nombre, precio, stock, imagen)
-        db.session.add(new_producto)
-        db.session.commit()
-        return producto_schema.jsonify(new_producto)
-
-    def update_producto(self, id):
-        producto = Producto.query.get(id)
-        nombre = request.json["nombre"]
-        precio = request.json["precio"]
-        stock = request.json["stock"]
-        imagen = request.json["imagen"]
-        producto.nombre = nombre
-        producto.precio = precio
-        producto.stock = stock
-        producto.imagen = imagen
-        db.session.commit()
-        return producto_schema.jsonify(producto)
-
     def home_POST(self):
         return instructions_post()
 
@@ -307,10 +281,7 @@ class Routes:
             "instructions_template.html", instructions=instructions_post()
         )
 
-    def product_management(self):
-        return
-
-    @needs_auth_decorator(db, User, Token, request)
+    @needs_auth_decorator(db, User, Token, request, admin=True)
     def __get_user(self):
         user = request.args.get("name")
         # si le damos un user devuelve la id y nombre de ese user
@@ -342,7 +313,7 @@ class Routes:
         return user_schema.jsonify(response)
 
     # actualiza contraseña (solo del propio usuario)
-    @needs_auth_decorator(db, User, Token, request)
+    @needs_auth_decorator(db, User, Token, request, admin=True)
     def __patch_user(self):
         user_name = request.cookies["token"].split(".")[0]
         user = User.query.filter_by(name=user_name).first()
@@ -352,7 +323,7 @@ class Routes:
             db.session.commit()
             cleared = auth.clear_user_token(db, User, Token, user_name)
             return "cambio contraseña " + cleared
-
+        
         return 'err, necesitas proporcionar un campo "passw" para modificar la contraseña'  # update
 
     # cambia la flag active en la base de datos a false
@@ -360,7 +331,7 @@ class Routes:
     def __delete_user(self):
         if not "name" in request.json:
             return "proporciona el nombre de la cuenta a desactivar {'nombre':'account-name'}"
-        user_name = request.json["name"]
+        user_name = request.json["user"]
         user = User.query.filter_by(name=user_name).first()
         user.active = False
         db.session.commit()
@@ -381,9 +352,6 @@ class Routes:
             response = categories_schema.dump(response)
             return jsonify(response)
 
-    # all_productos = Producto.query.all()
-    # result = productos_schema.dump(all_productos)
-    # return jsonify(result)
     @needs_auth_decorator(db, User, Token, request)
     def __post_category(self):
         title = request.json["titulo"]
