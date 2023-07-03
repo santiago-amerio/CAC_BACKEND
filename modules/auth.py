@@ -51,14 +51,14 @@ def login(user, request):
             )
             return (response, token)
         else:
-            response = jsonify({"message": "Invalid credentials"})
+            response = jsonify({"error": "Invalid credentials"})
             response.status_code = 401
             return (response, user.name)
     except Exception as e:
         print(e)
-        response = jsonify({"error": "Error occurred"})
+        response = jsonify({"error": "Error occurred,falta usuario?"})
         response.status_code = 500
-        return (response, user.name)
+        return (response, "user.name")
 
 
 def clear_timed_out_tokens(db, Token):
@@ -86,7 +86,8 @@ def needs_auth_decorator(request,admin=False):
         @wraps(func)
         def wrapper(*args, **kwargs):
             if "token" not in request.cookies:
-                return 'Error, cookie "token" no encontrada, iniciaste sesion? '
+                return {"error":' cookie "token" no encontrada, iniciaste sesion? '}
+            
             authenticated, is_admin = check_user_token(request)
             if authenticated:
                 if not admin:
@@ -95,10 +96,10 @@ def needs_auth_decorator(request,admin=False):
                     if is_admin:
                         return func(*args, **kwargs)
                     else:
-                        return "permisos_insuficientes"
+                        return {"error":"permisos_insuficientes"}
             else:
                 # Authentication failed
-                return "auth_error"
+                return {"error":"auth_error"}
 
         return wrapper
 
@@ -122,8 +123,8 @@ def create_user(User, request, db):
     try:
         db.session.commit()
     except:
-        return "ocurrio algun error, quizas nombre duplicado?"
-    return f"usuario {request.json['name']} creado"
+        return {"error":"ocurrio algun error, quizas nombre duplicado?"}
+    return {"message":f"usuario {request.json['name']} creado"}
 
 
 def generate_password():

@@ -13,6 +13,9 @@
         <input type="password" name="contraseña" id="passw" placeholder="contraseña">
         <input id="submit" type="button" value="submit">
     </form>
+    <div>
+        <p id="alert-box"></p>
+    </div>
     <script>
         document.querySelector("#submit")
             .addEventListener("click", function () {
@@ -27,7 +30,18 @@
                     body: JSON.stringify({ "name": user, passw: passw })
                 })
                     .then(response => response.json())
-                    .then(response => {window.location.href = "/admin"})
+                    .then(response => {
+                        console.log(response)
+                        if (response["message"] == "Login successful") {
+                            window.location.href = "/admin"
+                        }
+                        else {
+                            
+                            let element = document.querySelector("#alert-box")
+                            element.innerHTML = response["error"]
+                                
+                        }
+                    })
             });
 
     </script>

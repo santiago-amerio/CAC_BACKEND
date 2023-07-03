@@ -80,7 +80,7 @@ class Routes_category(Routes):
         try:
             db.session.commit()
         except:
-            return "categoria ya existe?"
+            return {"error": "categoria ya existe?"}
         response = Category.query.filter_by(titulo=title).first()
 
         return category_schema.jsonify(response)
@@ -102,7 +102,7 @@ class Routes_category(Routes):
     def __patch_category(self):
         json = request.json
         if not "id" in json:
-            return "necesitas la id de la categoria para actualizarla"
+            return {"error": "necesitas la id de la categoria para actualizarla"}
         cat = Category.query.filter_by(id=json["id"])
 
         if "titulo" in json:
@@ -124,7 +124,7 @@ class Routes_category(Routes):
     @needs_auth_decorator(request)
     def __delete_category(self):
         if not "id" in request.json:
-            return "proporciona la id de la categoria a desactivar"
+            return {"error": "proporciona la id de la categoria a desactivar"}
         category_id = request.json["id"]
         category = Category.query.filter_by(id=category_id).first()
         category.active = False
@@ -179,7 +179,7 @@ class Routes_user(Routes):
         try:
             db.session.commit()
         except:
-            return "Usuario ya registrado?"
+            return {"error": "Usuario ya registrado?"}
         response = User.query.filter_by(name=name).first()
 
         return user_schema.jsonify(response)
@@ -195,15 +195,19 @@ class Routes_user(Routes):
             db.session.commit()
 
             cleared = auth.clear_user_token(db, User, Token, user_name)
-            return "cambio contraseña " + cleared
+            return {"message": "cambio contraseña " + cleared}
 
-        return 'err, necesitas proporcionar un campo "passw" para modificar la contraseña'  # update
+        return {
+            "error": 'necesitas proporcionar un campo "passw" para modificar la contraseña'
+        }  # update
 
     # cambia la flag active en la base de datos a false
     @needs_auth_decorator(request, admin=True)
     def __delete_user(self):
         if not "name" in request.json:
-            return "proporciona el nombre de la cuenta a desactivar {'nombre':'account-name'}"
+            return {
+                "error": "proporciona el nombre de la cuenta a desactivar {'nombre':'account-name'}"
+            }
         user_name = request.json["user"]
         user = User.query.filter_by(name=user_name).first()
         user.active = False
@@ -251,6 +255,13 @@ class Routes_product(Routes):
     @needs_auth_decorator(request, admin=True)
     def __post_product(self):
         json = request.json
+        required_fields = ["modelo", "precio", "imagen", "descripcion", "categoria"]
+        missing_fields = [field for field in required_fields if field not in json]
+        print("faltan campos:" + str(missing_fields))
+
+        if missing_fields:
+            error = {"err": "faltan campos:" + str(missing_fields)}
+            return error
         model = json["modelo"]
         price = json["precio"]
         img = json["imagen"]
@@ -335,7 +346,7 @@ class Routes_default(Routes):
     @needs_auth_decorator(request, admin=True)
     def __get_clear_tokens(self):
         return auth.clear_timed_out_tokens(db, Token)
-    
+
     @needs_auth_decorator(request, admin=True)
     def __post_home(self):
         return instructions_post()
@@ -345,6 +356,11 @@ class Routes_default(Routes):
         return render_template(
             "instructions_template.html", instructions=instructions_post()
         )
+
+
+class Routes_client:
+    def __init__():
+        return
 
 
 # Create the routes
