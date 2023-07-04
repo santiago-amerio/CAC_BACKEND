@@ -8,7 +8,6 @@ from functools import wraps
 from modules.db_connection import db, User, Token
 
 
-
 # tiempo que el token es valido para autenticacion
 expiration_delay = timedelta(days=30)
 
@@ -28,7 +27,7 @@ def check_user_token(request):
                 return (True, db_user.admin)
     # cuando no encuentra un token igual al del del cliente
     # devuelve False
-    return (False,False)
+    return (False, False)
 
 
 def login(user, request):
@@ -47,7 +46,10 @@ def login(user, request):
                 "token", token, max_age=expiration_delay.total_seconds(), secure=True
             )
             response.set_cookie(
-                "is_admin", str(user.admin), max_age=expiration_delay.total_seconds(), secure=True
+                "is_admin",
+                str(user.admin),
+                max_age=expiration_delay.total_seconds(),
+                secure=True,
             )
             return (response, token)
         else:
@@ -81,52 +83,39 @@ def clear_timed_out_tokens(db, Token):
     return cleared_tokens
 
 
-def needs_auth_decorator(request,admin=False):
+def needs_auth_decorator(request, required_admin_level=0):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             if "token" not in request.cookies:
-                return {"error":' cookie "token" no encontrada, iniciaste sesion? '}
-            
-            authenticated, is_admin = check_user_token(request)
+                return {"error": ' cookie "token" no encontrada, iniciaste sesion? '}
+
+            authenticated, admin_level = check_user_token(request)
             if authenticated:
-                if not admin:
+                if required_admin_level <= admin_level:
                     return func(*args, **kwargs)
+
                 else:
-                    if is_admin:
-                        return func(*args, **kwargs)
-                    else:
-                        return {"error":"permisos_insuficientes"}
+                    return {"error": "permisos_insuficientes"}
             else:
                 # Authentication failed
-                return {"error":"auth_error"}
+                return {"error": "auth_error"}
 
         return wrapper
 
     return decorator
 
 
-def clear_user_token(db, User, Token, user_name):
-    user = User.query.filter_by(name=user_name).first()
+def clear_user_token(db, User, Token, user_id):
+    user = User.query.filter_by(id=user_id).first()
+    print(user)
     if user:
         Token.query.filter_by(user_id=user.id).delete()
         db.session.commit()
         return "tokens eliminados"
-    return "error"
-
-
-def create_user(User, request, db):
-    name = request.json["name"]
-    passw = request.json["passw"]
-    new_user = User(name, passw)
-    db.session.add(new_user)
-    try:
-        db.session.commit()
-    except:
-        return {"error":"ocurrio algun error, quizas nombre duplicado?"}
-    return {"message":f"usuario {request.json['name']} creado"}
+    return "token remover error"
 
 
 def generate_password():
     letters = string.ascii_lowercase
-    return "".join(random.choice(letters) for i in range(5))
+    return "".join(random.choice(letters) for i in range(10))

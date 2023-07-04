@@ -36,6 +36,7 @@ class Routes:
                 )
 
 
+#  ************************************************************
 class Routes_category(Routes):
     def __init__(self, app):
         self.app = app
@@ -61,7 +62,6 @@ class Routes_category(Routes):
         print(title)
         if title:
             query = Category.query.filter_by(titulo=title).first()
-
             serialized_data = category_schema.dump(query)
             return serialized_data
         else:
@@ -69,7 +69,7 @@ class Routes_category(Routes):
             response = categories_schema.dump(response)
             return jsonify(response)
 
-    @needs_auth_decorator(request)
+    @needs_auth_decorator(request, required_admin_level=1)
     def __post_category(self):
         title = request.json["titulo"]
         description = request.json["descripcion"]
@@ -85,60 +85,46 @@ class Routes_category(Routes):
 
         return category_schema.jsonify(response)
 
-    def __patch_user(self):
-        user_name = request.cookies["token"].split(".")[0]
-        user = User.query.filter_by(name=user_name).first()
-
-        if "passw" in request.json:
-            user.passw = request.json["passw"]
-            db.session.commit()
-
-            cleared = auth.clear_user_token(db, User, Token, user_name)
-            return "cambio contraseña " + cleared
-
-        return 'err, necesitas proporcionar un campo "passw" para modificar la contraseña'  # update
-
-    @needs_auth_decorator(request)
+    @needs_auth_decorator(request, required_admin_level=1)
     def __patch_category(self):
         json = request.json
         if not "id" in json:
             return {"error": "necesitas la id de la categoria para actualizarla"}
         cat = Category.query.filter_by(id=json["id"])
-
-        if "titulo" in json:
-            cat.titulo = json["titulo"]
-            print(cat.titulo)
-
-        if "descripcion" in json:
-            cat.description = json["descripcion"]
-
-        if "imagen" in json:
-            cat.imagen = json["imagen"]
-
-        commit = db.session.commit()
+        cat.titulo = json.get("titulo", cat.titulo)
+        cat.description = json.get("descripcion", cat.description)
+        cat.imagen = json.get("imagen", cat.imagen)
+        try:
+            db.session.commit()
+        except:
+            return {"error": "categoria ya existe?"}
         print(db.session)
         data = Category.query.get(json["id"])
         dump = category_schema.dump(data)
         return dump
 
-    @needs_auth_decorator(request)
+    @needs_auth_decorator(request, required_admin_level=1)
     def __delete_category(self):
         if not "id" in request.json:
             return {"error": "proporciona la id de la categoria a desactivar"}
         category_id = request.json["id"]
         category = Category.query.filter_by(id=category_id).first()
         category.active = False
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            return {"error": "categoria ya existe?"}
         return category_schema.jsonify(category)
 
 
+#  ************************************************************
 class Routes_user(Routes):
     def __init__(self, app):
         self.app = app
         # super().__init__(app)
         self.routes = [
             {
-                "endpoint": "user",
+                "endpoint": "/user",
                 "method": ["GET", "POST", "PATCH", "DELETE"],
                 "function": [
                     self.__get_user,
@@ -153,7 +139,7 @@ class Routes_user(Routes):
     def register_routes(self, route_list):
         return super().register_routes(route_list)
 
-    @needs_auth_decorator(request, admin=True)
+    @needs_auth_decorator(request, required_admin_level=2)
     def __get_user(self):
         user = request.args.get("name")
         # si le damos un user devuelve la id y nombre de ese user
@@ -170,11 +156,17 @@ class Routes_user(Routes):
 
     # genera nuevo usuario
     # devuelve id y nombre
-    @needs_auth_decorator(request, admin=True)
+    @needs_auth_decorator(request, required_admin_level=2)
     def __post_user(self):
-        name = request.json["name"]
+        json = request.json
+        required_fields = ["name", "admin_level"]
+        missing_fields = [field for field in required_fields if field not in json]
+        if missing_fields:
+            return {"error": {"missing-fields": missing_fields}}
+        name = json["name"]
+        admin_level = json["admin_level"]
         passw = auth.generate_password()
-        new_user = User(name, passw)
+        new_user = User(name, passw,admin=admin_level)
         db.session.add(new_user)
         try:
             db.session.commit()
@@ -184,25 +176,27 @@ class Routes_user(Routes):
 
         return user_schema.jsonify(response)
 
-    # actualiza contraseña (solo del propio usuario)
-    @needs_auth_decorator(request, admin=True)
+    @needs_auth_decorator(request, required_admin_level=2)
     def __patch_user(self):
-        user_name = request.cookies["token"].split(".")[0]
-        user = User.query.filter_by(name=user_name).first()
-        print(user.passw)
-        if "passw" in request.json:
-            user.passw = request.json["passw"]
+        
+        json = request.json
+        if not "id" in json:
+            return {"err": "necesitas la id del usuario a modificar"}
+        user_id = json["id"]
+        user = User.query.filter_by(id=user_id).first()
+        user.passw = json.get("passw", user.passw)
+        user.name = json.get("name", user.name)
+        user.active = json.get("active", user.active)
+        user.admin = json.get("admin", user.admin)
+        try:
             db.session.commit()
-
-            cleared = auth.clear_user_token(db, User, Token, user_name)
-            return {"message": "cambio contraseña " + cleared}
-
-        return {
-            "error": 'necesitas proporcionar un campo "passw" para modificar la contraseña'
-        }  # update
+        except:
+            return {"error": "error al ingresar datos a la DB"}
+        cleared = auth.clear_user_token(db, User, Token, user_id)
+        return {"message": "cambios exitosos. " + cleared}
 
     # cambia la flag active en la base de datos a false
-    @needs_auth_decorator(request, admin=True)
+    @needs_auth_decorator(request, required_admin_level=2)
     def __delete_user(self):
         if not "name" in request.json:
             return {
@@ -211,9 +205,11 @@ class Routes_user(Routes):
         user_name = request.json["user"]
         user = User.query.filter_by(name=user_name).first()
         user.active = False
-        db.session.commit()
-        return producto_schema.jsonify(user)
-
+        try:
+            db.session.commit()
+        except:
+            return {"error": "error al ingresar datos a la DB"}
+        return user_schema.jsonify(user)
 
 class Routes_product(Routes):
     def __init__(self, app):
@@ -252,15 +248,14 @@ class Routes_product(Routes):
             response = productos_schema.dump(response)
             return jsonify(response)
 
-    @needs_auth_decorator(request, admin=True)
+    @needs_auth_decorator(request, required_admin_level=1)
     def __post_product(self):
         json = request.json
         required_fields = ["modelo", "precio", "imagen", "descripcion", "categoria"]
         missing_fields = [field for field in required_fields if field not in json]
-        print("faltan campos:" + str(missing_fields))
 
         if missing_fields:
-            error = {"err": "faltan campos:" + str(missing_fields)}
+            error = {"err": {"missing-fields": missing_fields}}
             return error
         model = json["modelo"]
         price = json["precio"]
@@ -285,15 +280,17 @@ class Routes_product(Routes):
 
         return producto_schema.jsonify(response)
 
-    @needs_auth_decorator(request, admin=True)
+    # TODO:FALTA HACER
+    @needs_auth_decorator(request, required_admin_level=1)
     def __patch_product(self):
         return "test"
 
-    @needs_auth_decorator(request, admin=True)
+    @needs_auth_decorator(request, required_admin_level=1)
     def __delete_product(self):
         return "test"
 
 
+#  ************************************************************
 class Routes_default(Routes):
     def __init__(self, app):
         self.app = app
@@ -317,57 +314,100 @@ class Routes_default(Routes):
                 "function": [self.__get_home_login],
             },
             {
-                "endpoint": "login",
+                "endpoint": "/login",
                 "method": ["POST"],
-                "function": [
-                    self.__post_login,
-                ],
+                "function": [self.__user_post_login],
+            },
+            {
+                "endpoint": "/user_properties_change",
+                "method": ["PATCH"],
+                "function": [self.__post_change_client_properties],
+            },
+            {
+                "endpoint": "/register",
+                "method": ["POST"],
+                "function": [self.__post_register_account],
             },
         ]
-        # self.app.add_url_rule("/", view_func=self.__post_home, methods=["POST"])
-        # self.app.add_url_rule("/", view_func=self.__get_home, methods=["GET"])
+
         self.register_routes(self.routes)
+
+    def __post_register_account(self):
+        json = request.json
+        required_fields = ["name", "passw", "mail"]
+        missing_fields = [field for field in required_fields if field not in json]
+        if missing_fields:
+            return {"error": {"missing-fields": missing_fields}}
+        name = json["name"]
+        passw = json["passw"]
+        mail = json["mail"]
+        new_client = User(name, passw, mail)
+        db.session.add(new_client)
+        try:
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            return {"error": "Usuario ya registrado?"}
+        response = User.query.filter_by(name=name).first()
+        return user_schema.jsonify(response)
 
     def __get_home_login(self):
         return render_template("login.html")
 
-    def __post_login(self):
+    def __user_post_login(self):
         name = request.json["name"]
         user = User.query.filter_by(name=name).first()
+
         response, token = auth.login(user, request.json)
         if response.status_code == 200:
             new_token = Token(user.id, token)
             db.session.add(new_token)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                return {"error": "error al ingresar datos a la DB"}
             return response
         else:
             return response.json
 
-    @needs_auth_decorator(request, admin=True)
+    @needs_auth_decorator(request)
+    def __post_change_client_properties(self):
+        user_name = request.cookies["token"].split(".")[0]
+        json = request.json
+        user = User.query.filter_by(name=user_name).first()
+        user.name = json.get("name", user.name)
+        user.mail = json.get("mail", user.mail)
+        user.passw = json.get("passw", user.passw)
+        try:
+            db.session.commit()
+        except:
+            return {"error": "error al ingresar datos a la DB"}
+        response = user_schema.dump(user)
+        del response["passw"]
+        return response
+
+    @needs_auth_decorator(request, required_admin_level=2)
     def __get_clear_tokens(self):
         return auth.clear_timed_out_tokens(db, Token)
 
-    @needs_auth_decorator(request, admin=True)
+    @needs_auth_decorator(request, required_admin_level=1)
     def __post_home(self):
         return instructions_post()
 
-    @needs_auth_decorator(request, admin=True)
+    @needs_auth_decorator(request, required_admin_level=1)
     def __get_home(self):
         return render_template(
             "instructions_template.html", instructions=instructions_post()
         )
 
 
-class Routes_client:
-    def __init__():
-        return
-
-
+#  ************************************************************
 # Create the routes
 # routes_instance = Routes(app)
-routes_user = Routes_user(app)
 routes_product = Routes_product(app)
 routes_default = Routes_default(app)
 routes_category = Routes_category(app)
+routes_user = Routes_user(app)
+# routes_client = Routes_client(app)
 if __name__ == "__main__":
     app.run(debug=True, port=5000)  # ejecuta el servidor Flask en el puerto 5000

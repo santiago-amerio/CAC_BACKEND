@@ -74,6 +74,7 @@
         .table-footer {
             margin: 0;
             background-color: #3f3f3f;
+            color: white;
             padding: 12px;
             text-align: center;
         }
@@ -81,27 +82,31 @@
         .container {
             border-bottom: 1px solid rgba(0, 0, 0, 0.261);
             padding: .2rem;
-            display: flex;
+
             flex-direction: column;
-            min-width: fit-content;
+
         }
 
         .content {
             display: flex;
+            flex-direction: column;
+        }
+
+
+
+
+
+        .grid {
+            display: flex;
             flex-direction: row;
+            justify-content: space-around;
+            margin-bottom: 2rem;
+
+        }
+        .descriptions>span{
+            margin: 0 .5rem;
         }
 
-
-
-
-
-        .grid1 {
-            display: grid;
-            row-gap: 1rem;
-            column-gap: 1rem;
-            grid-auto-columns: 50px;
-            grid-template-columns: max-content 8fr;
-        }
 
         p {
             margin: 0
@@ -137,38 +142,7 @@
         }
 
 
-        .pre-line>code {
-            display: block;
-        }
 
-        pre {
-            display: flex;
-        }
-
-        code {
-
-            padding: 2px 4px;
-
-            font-family: Consolas, Monaco, 'Courier New', monospace;
-            font-size: 14px;
-            background-color: #1a1b26;
-            color: #e0e0e0;
-
-
-        }
-
-
-        .hljs {
-            padding: .5rem .5rem;
-        }
-
-        .half-title {
-            display: inline-block;
-            padding-right: 2rem;
-            padding-bottom: .2rem;
-            border-bottom: 2px solid rgba(128, 128, 128, 0.49);
-            margin-bottom: .2rem;
-        }
 
         .to-top {
             color: white;
@@ -194,48 +168,54 @@
 
         }
 
-        .get {
-            color: green;
+        table {
+
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            font-family: Arial, sans-serif;
         }
 
-        .post {
-            color: #51abfa;
+        th,
+        td {
+            border-bottom: 1px solid #414141;
+            padding: 10px;
+            text-align: left;
         }
 
-        .delete {
-            color: tomato;
+        th:first-child,
+        td:first-child {
+            border-left: 1px solid #414141;
         }
 
-        .patch {
-            color: yellow;
+        th:last-child,
+        td:last-child {
+            border-right: 1px solid #414141;
         }
 
-        .del {
-            color: red;
-            font-weight: bolder;
-            background-color: yellow;
+        tr:last-child th,
+        tr:last-child td {
+            border-bottom: none;
         }
 
-        .req {
-            padding-left: .5rem;
-            border-left: 1px solid;
+        th {
+            background-color: #222;
+            color: #eeeeee;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* tr:nth-child(even) {
+            background-color: #414141;
+        } */
+
+        tbody>tr:hover {
+            outline: 3px inset rgba(255, 0, 0, 0.308);
 
         }
 
-        .content-get {
-            border-color: green;
-        }
-
-        .content-post {
-            border-color: #51abfa;
-        }
-
-        .content-delete {
-            border-color: tomato;
-        }
-
-        .content-patch {
-            border-color: yellow;
+        td {
+            color: #c2c2c2;
         }
     </style>
     <link rel="stylesheet"
@@ -249,261 +229,166 @@
     <div class="to-top">
         <a href="#main"><i class="fa-solid fa-angles-up"></i></a>
     </div>
+
     <div class="container">
         <div class="content">
-            <div id="aside">
-                <div>
-                    <h1 class="endpoints-title">enpoints</h1>
-                    <ul>
-                        <a class="anchor-link" href="#root">
-                            <li class="endpoint">/</li>
-                        </a>
-                        <a class="anchor-link" href="#login">
-                            <li class="endpoint">/login</li>
-                        </a>
-                        <a class="anchor-link" href="#user">
-                            <li class="endpoint">/user</li>
-                        </a>
+            <div id="main" class="api-logo">
+                <img src="https://i.postimg.cc/GtQFmYGv/CORE-WEB-SOLUTIONS-w.png" alt="API Logo">
+            </div>
+            <div class="grid">
+                <div class="descriptions">
 
-                    </ul>
+                    <span>-</span><span>sin cuenta</span><br>
+                    <span>0</span><span>usuario</span><br>
+                    <span>1</span><span>empleado</span><br>
+                    <span>2</span><span>administrador</span><br>
+                </div>
+
+                <div class="descriptions">
+
+                    <span>GET</span><span>obtiene informacion</span><br>
+                    <span>POST:</span><span>añade nueva entrada a la DB</span><br>
+                    <span>PATCH:</span><span>actualiza parte una entrada de la DB</span><br>
+                    <span>DELETE:</span><span>elimina o desactiva una entrada de la DB</span><br>
                 </div>
             </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Endpoint</th>
+                        <th>Method</th>
+                        <th>Required Parameters</th>
+                        <th>admin_level (-,0,1,2)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>/category</td>
+                        <td>GET</td>
+                        <td>None</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>/category</td>
+                        <td>POST</td>
+                        <td>titulo, descripcion, imagen</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>/category</td>
+                        <td>PATCH</td>
+                        <td>id, titulo (optional), descripcion (optional), imagen (optional)</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>/category</td>
+                        <td>DELETE</td>
+                        <td>id</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>/user</td>
+                        <td>GET</td>
+                        <td>name (optional)</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>/user</td>
+                        <td>POST</td>
+                        <td>name, admin_level</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>/user</td>
+                        <td>PATCH</td>
+                        <td>id, passw (optional), name (optional), active (optional), admin (optional)</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>/user</td>
+                        <td>DELETE</td>
+                        <td>name</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>/product</td>
+                        <td>GET</td>
+                        <td>modelo (optional), id (optional), categoria (optional)</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>/product</td>
+                        <td>POST</td>
+                        <td>modelo, precio, imagen, descripcion, categoria</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>/product</td>
+                        <td>PATCH</td>
+                        <td>Not implemented</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>/product</td>
+                        <td>DELETE</td>
+                        <td>Not implemented</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>/clear_tokens</td>
+                        <td>GET</td>
+                        <td>None</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>/admin</td>
+                        <td>GET</td>
+                        <td>None</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>/admin</td>
+                        <td>POST</td>
+                        <td>None</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>/</td>
+                        <td>GET</td>
+                        <td>None</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>/login</td>
+                        <td>POST</td>
+                        <td>name</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>/user_properties_change</td>
+                        <td>PATCH</td>
+                        <td>name (optional), mail (optional), passw (optional)</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>/register</td>
+                        <td>POST</td>
+                        <td>name, passw, mail</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
 
-            <div id="sections">
-                <div id="main" class="api-logo">
-                    <img src="https://i.postimg.cc/GtQFmYGv/CORE-WEB-SOLUTIONS-w.png" alt="API Logo">
-                </div>
-                <div id="root" class="section">
-
-                    <h1>/</h1>
-                    <p class="description">
-                        Root endpoint '/' muestra opciones de la API<br>
-                        GET: te trae a esta pagina.<br>
-                        POST: devuelve un JSON con todas las opciones de la API
-                    </p>
-                    <div class="content-post req ">
-                        <h3 class="half-title">- Request <span class="post">[POST]</span></h3>
-                        <p class="description">
-                            no necesita body
-                        </p>
-
-                        <h4 class="half-title">- Response</h4>
-                        <p class="description">Este endpoint devuelve un JSON con cada endpoint y sus propiedades <br>
-                        </p>
-                        <pre class="language-json pre-line">
-                            <code id="code_1" ></code>
-                        </pre>
-                        <p class="description">Si hay fallos en la <span class="del">NO HAY
-                                FALLBACK</span></p>
-                    </div>
-                </div>
-
-
-                <div id="login" class="section">
-                    <h1>/login</h1>
-                    <div class="content-post req ">
-                        <p class="description">
-                            Login endpoint, se encarga de autenticar al usuario.
-                        </p>
-
-                        <h3 class="half-title">- Request <span class="post">[POST]</span></h3>
-                        <p class="description">
-                            Recibe dos parametros en el body,
-                            <code>user</code> y <code>passw</code>
-                        </p>
-                        <pre class="language-json pre-line">
-                        <code  id="code_2"></code>
-                    </pre>
-                        <h4 class="half-title">- Response</h4>
-                        <p class="description">Setea 2 cookies, admin y token <br>
-                            "token" se encarga de la autenticacion del usuario en el backend<br>
-                            "admin" es una cookie para la identificacion de los adminsitradores en el frontend
-                            <br>
-                            estructura del token:
-                        </p>
-                        <pre class="language-json pre-line">
-                        <code id="code_3"></code>
-                    </pre>
-                        <p class="description">
-                            El token se compone de dos partes, separadas por un punto(.).<br>
-                            A la izquierda, el nombre de usuario, a la derecha una string de 50 caracteres
-                            auto-generados
-                            aleatoreamente<br><br>
-                            Si hay fallos en la autenticacion devuelve un JSON</p>
-                        <pre class="language-json"><code>{"auth error"}</code></pre>
-                    </div>
-                </div>
-
-                <div id="user" class="section">
-                    <h1>/user</h1>
-                    <p class="description">
-                        User endpoint, se encarga manejo de cuentas de empleados.<br>
-                    </p>
-                    <hr>
-                    <div class="content-get req ">
-                        <h3 class="half-title">- Request <span class="get">[GET]</span></h3>
-                        <p class="description">
-                            Recibe 0 o 1 parametro en la URL
-                        </p>
-                        <pre class="language-json pre-line">
-                        <code id="code_4"></code>
-                        </pre>
-                        <h4 class="half-title">- Response</h4>
-                        <p class="description">Este endpoint devuelve un JSON <br>
-                            Si la cuenta fue creada de manera correcta devuelve <code>id</code> y <code>name</code>
-                        </p>
-                        <pre class="language-json pre-line">
-                            <code id="code_5"></code>
-                        </pre>
-                        <p class="description">Si no encuentra el usuario devuelve un objeto vacio: <code>{}</code></p>
-
-                    </div>
-                    <hr>
-                    <div class="content-post req ">
-                        <h3 class="half-title">- Request <span class="post">[POST]</span></h3>
-                        <p class="description">
-                            Recibe 1 parametro en el body
-                        </p>
-                        <pre class="language-json pre-line">
-                            <code id="code_6"></code>
-                        </pre>
-                        <h4 class="half-title">- Response</h4>
-                        <p class="description">Este endpoint devuelve un JSON <br>
-                            Si la cuenta fue creada de manera correcta devuelve <code>id</code>, <code>name</code> y
-                            <code>passw</code>
-                            <br>la contraseña es auto-generada en el backend
-                        </p>
-                        <pre class="language-json pre-line">
-                        <code id="code_7"></code>
-                    </pre>
-                    </div>
-                    <hr>
-                    <div class="content-patch req ">
-                        <h3 class="half-title">- Request <span class="patch">[PATCH]</span></h3>
-                        <p class="description">
-                            recibe dos o mas parametros
-                            <br> <code>user</code> (nombre de usuario){no modificable, se envia como referencia}
-                            <br> <code>passw </code>(nueva contraseña usuario)
-                            <br> <code>active</code>(desactiva la cuenta {0})
-                            <br> <code>admin</code> (da permisos de administrador {1})
-                        </p>
-                        <pre class="language-json pre-line">
-                            <code id="code_8"></code>
-                        </pre>
-                        <h4 class="half-title">- Response</h4>
-                        <p class="description">devuelve un mensaje de error o exito.</p>
-                    </div>
-                    <hr>
-                    <div class="content-delete req ">
-                        <h3 class="half-title">- Request <span class="delete">[DELETE]</span></h3>
-                        <p class="description">
-                            recibe 1 parametro
-                        </p>
-                        <pre class="language-json pre-line">
-                            <code id="code_9"></code>
-                        </pre>
-
-                        <h4 class="half-title">- Response</h4>
-                        <p class="description">devuelve un objeto con los datos del usuario desactivado</p>
-                        <pre class="language-json pre-line">
-                            <code id="code_10"></code>
-                        </pre>
-
-                    </div>
-                </div>
-                <div id="product" class="section">
-
-                    <h1>/product</h1>
-                    <div class="content-get req">
-                        <h3 class="half-title">- Request <span class="get">[GET]</span></h3>
-                        <p class="description">
-                            recibe 1 parametro
-                        </p>
-                        <pre class="language-json pre-line">
-                            <code id="code_9"></code>
-                        </pre>
-
-                        <h4 class="half-title">- Response</h4>
-                        <p class="description">devuelve un objeto con los datos del usuario desactivado</p>
-                        <pre class="language-json pre-line">
-                        <code id="code_10"></code>
-                    </pre>
-                    </div>
-                </div>
-            </div>
 
 
         </div>
+        <div>
+            <p class="table-footer">
+                Powered By CORE </p>
+        </div>
     </div>
-    <div>
-        <p class="table-footer">
-            Powered By CORE </p>
-    </div>
-    </div>
-    <script>
-        function add_code(id, code) {
 
-            tag = document.querySelector(`#${id}`)
-            tag.innerHTML = code.replace(/^\s{16}/gm, '')
-        }
-        code1 = `"/endpoint": { # la ruta que recibe la peticion
-                    "method": "PUT", # metodo de la peticion
-                    "options": {
-                        "key": { # nombre de la clave
-                            "type": "int", # tipo de valor que acepta key
-                            "description": "descripcion de 'key'", # breve descripcion de key
-                        },
-                        "ke2": { # nombre de la clave
-                            "type": "string(255)", # tipo de valor que acepta key2
-                            "description": "descripcion de key2", # breve descripcion de key2
-                        },
-                },`
-        code2 = `{
-                    "user": "nombre_de_usuario",
-                    "passw": "contraseña_en_texto_plano"
-                }`
-        code3 = `{
-                    token:"test123.eeaykbvixaytjksgyddbzgyxehqhvrydjcvhigwiikrskbanoj"
-                }`
 
-        code4 = `/user?name=nombre_de_usuario`
-        code5 = `{
-                    "id": 4,
-                    "name": "nombre_de_usuario"
-                }`
-
-        code6 = `{
-                    "name": "nombre_de_usuario"
-                }`
-        code7 = `{
-                    "id": 4,
-                    "name": "nombre_de_usuario",
-                    "passw":"contraseña"
-                }`
-        code8 = `{
-                    "name": "nombre_de_usuario",
-                    "passw":"contraseña"
-                }`
-        code9 = `{
-                    "name": "nombre_de_usuario"
-                }`
-        code10 = `{
-                    "id": 4,
-                    "name": "nombre_de_usuario"
-                    "admin":false
-                    "active":false
-                }`
-        add_code("code_1", code1)
-        add_code("code_2", code2)
-        add_code("code_3", code3)
-        add_code("code_4", code4)
-        add_code("code_5", code5)
-        add_code("code_6", code6)
-        add_code("code_7", code7)
-        add_code("code_8", code8)
-        add_code("code_9", code9)
-        add_code("code_10", code10)
-    </script>
 
 </body>
 
