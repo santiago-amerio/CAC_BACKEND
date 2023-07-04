@@ -31,6 +31,10 @@ def check_user_token(request):
 
 
 def login(user, request):
+    if not user:
+        response = jsonify({"error": "Usuario no encontrado"})
+        response.status_code = 401
+        return response ,False
     try:
         if (
             user.passw == request["passw"]

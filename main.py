@@ -42,7 +42,7 @@ class Routes_category(Routes):
         self.app = app
         self.routes = [
             {
-                "endpoint": "category",
+                "endpoint": "/category",
                 "method": ["GET", "POST", "PATCH", "DELETE"],
                 "function": [
                     self.__get_category,
@@ -166,7 +166,7 @@ class Routes_user(Routes):
         name = json["name"]
         admin_level = json["admin_level"]
         passw = auth.generate_password()
-        new_user = User(name, passw,admin=admin_level)
+        new_user = User(name, passw, admin=admin_level)
         db.session.add(new_user)
         try:
             db.session.commit()
@@ -178,7 +178,6 @@ class Routes_user(Routes):
 
     @needs_auth_decorator(request, required_admin_level=2)
     def __patch_user(self):
-        
         json = request.json
         if not "id" in json:
             return {"err": "necesitas la id del usuario a modificar"}
@@ -210,6 +209,7 @@ class Routes_user(Routes):
         except:
             return {"error": "error al ingresar datos a la DB"}
         return user_schema.jsonify(user)
+
 
 class Routes_product(Routes):
     def __init__(self, app):
@@ -280,14 +280,43 @@ class Routes_product(Routes):
 
         return producto_schema.jsonify(response)
 
-    # TODO:FALTA HACER
     @needs_auth_decorator(request, required_admin_level=1)
     def __patch_product(self):
-        return "test"
+        json = request.json
+        required_fields = ["id"]
+        missing_fields = [field for field in required_fields if field not in json]
+        if missing_fields:
+            error = {"err": {"missing-fields": missing_fields}}
+            return error
+        product = Producto.query.filter_by(id=id).first()
+        product.modelo = json.get("modelo", product.modelo)
+        product.precio = json.get("precio", product.precio)
+        product.imagen = json.get("imagen", product.imagen)
+        product.description = json.get("description", product.description)
+        product.categoria = json.get("categoria", product.categoria)
+        try:
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            return "Ocurrio un error al insertar en la base de datos"
+        return producto_schema.dump(product)
 
     @needs_auth_decorator(request, required_admin_level=1)
     def __delete_product(self):
-        return "test"
+        json = request.json
+        required_fields = ["id", "active"]
+        missing_fields = [field for field in required_fields if field not in json]
+        if missing_fields:
+            error = {"err": {"missing-fields": missing_fields}}
+            return error
+        product = Producto.query.filter_by(id=id).first()
+        product.active = json.get("active", product.active)
+        try:
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            return "Ocurrio un error al insertar en la base de datos"
+        return producto_schema.dump(product)
 
 
 #  ************************************************************
@@ -302,11 +331,6 @@ class Routes_default(Routes):
                 "function": [
                     self.__get_clear_tokens,
                 ],
-            },
-            {
-                "endpoint": "/admin",
-                "method": ["GET", "POST"],
-                "function": [self.__get_home, self.__post_home],
             },
             {
                 "endpoint": "/",
