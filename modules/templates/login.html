@@ -5,16 +5,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-weight: 900;
+        }
+
+        .main {
+            width: 100%;
+            height: 100%;
+            background-color: gray;
+
+        }
+
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgb(73, 73, 73);
+            color: rgb(235, 235, 235);
+            padding: 1rem 2rem;
+            text-align: center;
+
+           
+        }
+
+        a {
+            background-color: rgb(160, 160, 160);
+            padding: .2rem .5rem;
+            text-decoration: none;
+            color: black;
+            transition:.3s
+        }
+
+        a:hover {
+            background-color: rgb(235, 235, 235);
+        }
+    </style>
 </head>
 
 <body>
-    <form method="POST">
-        <input type="text" placeholder="usuario" id="user">
-        <input type="password" name="contraseña" id="passw" placeholder="contraseña">
-        <input id="submit" type="button" value="submit">
-    </form>
-    <div>
-        <p id="alert-box"></p>
+    <div class="main">
+        <div class="container">
+            <p>Estas buscando la documentacion para esta API?</p>
+            <p>Hace click aca abajo</p>
+            <a href="https://santiago-amerio.github.io/BACKEND_DOCS/">DOCUMENTACION</a>
+        </div>
     </div>
     <script>
         document.querySelector("#submit")
@@ -36,10 +75,10 @@
                             window.location.href = "/admin"
                         }
                         else {
-                            
+
                             let element = document.querySelector("#alert-box")
                             element.innerHTML = response["error"]
-                                
+
                         }
                     })
             });
