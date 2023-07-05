@@ -271,7 +271,7 @@ class Routes_product(Routes):
         img = json["imagen"]
         description = json["descripcion"]
         category = json["categoria"]
-        pb = json["pb",]
+        pb = json["pb"]
         ccn = json["ccn"]
         pf = json["pf"]
         category_exist = Category.query.filter_by(id=category).first()
