@@ -251,7 +251,16 @@ class Routes_product(Routes):
     @needs_auth_decorator(request, required_admin_level=1)
     def __post_product(self):
         json = request.json
-        required_fields = ["modelo", "precio", "imagen", "descripcion", "categoria"]
+        required_fields = [
+            "modelo",
+            "precio",
+            "imagen",
+            "descripcion",
+            "categoria",
+            "pb",
+            "ccn",
+            "pf",
+        ]
         missing_fields = [field for field in required_fields if field not in json]
 
         if missing_fields:
@@ -262,6 +271,9 @@ class Routes_product(Routes):
         img = json["imagen"]
         description = json["descripcion"]
         category = json["categoria"]
+        pb = json["pb",]
+        ccn = json["ccn"]
+        pf = json["pf"]
         category_exist = Category.query.filter_by(id=category).first()
 
         is_in_db = Producto.query.filter_by(modelo=model).first()
@@ -269,7 +281,7 @@ class Routes_product(Routes):
             return "la categoria no existe, por favor crea la categoria primero."
         if is_in_db:
             return "producto ya existe."
-        new_product = Producto(model, price, img, description, category)
+        new_product = Producto(model, price, img, description, pb, ccn, pf, category)
         db.session.add(new_product)
         try:
             db.session.commit()
@@ -294,6 +306,9 @@ class Routes_product(Routes):
         product.imagen = json.get("imagen", product.imagen)
         product.description = json.get("description", product.description)
         product.categoria = json.get("categoria", product.categoria)
+        product.pb = json.get("pb",product.pb)
+        product.ccn = json.get("ccn",product.ccn)
+        product.pf = json.get("pf",product.pf)
         try:
             db.session.commit()
         except Exception as e:

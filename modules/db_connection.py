@@ -20,7 +20,9 @@ DB_host = os.getenv("MYSQL_HOST")
 DB_db_name = os.getenv("MYSQL_DB_NAME")
 
 app = Flask(__name__)  # crear el objeto app de la clase Flask
-CORS(app, supports_credentials=True,origins="*")  # modulo cors es para que me permita acceder desde el frontend al backend
+CORS(
+    app, supports_credentials=True, origins="*"
+)  # modulo cors es para que me permita acceder desde el frontend al backend
 
 # configuro la base de datos, con el nombre el usuario y la clave
 app.config[
@@ -41,7 +43,7 @@ class User(db.Model):  # la clase Producto hereda de db.Model
     admin = db.Column(db.Integer)
     active = db.Column(db.Boolean)
 
-    def __init__(self, name, passw,mail = False, admin=0, active=True):
+    def __init__(self, name, passw, mail=False, admin=0, active=True):
         self.name = name
         self.passw = passw
         self.mail = mail
@@ -80,7 +82,6 @@ token_schema = TokenSchema()
 tokens_schema = TokenSchema(many=True)
 
 
-
 #  ************************************************************
 class Producto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -88,13 +89,21 @@ class Producto(db.Model):
     precio = db.Column(db.Integer)
     imagen = db.Column(db.String(400))
     description = db.Column(db.String(500))
+    pb = db.Column(db.String)
+    ccn = db.Column(db.String)
+    pf = db.Column(db.String)
     categoria = db.Column(db.Integer, db.ForeignKey("category.id"))
     active = db.Column(db.Boolean)
 
-    def __init__(self, modelo, precio, imagen, description, categoria, active=True):
+    def __init__(
+        self, modelo, precio, imagen, description, pb, ccn, pf, categoria, active=True
+    ):
         self.modelo = modelo
         self.precio = precio
         self.imagen = imagen
+        self.pb = pb
+        self.ccn = ccn
+        self.pf = pf
         self.description = description
         self.categoria = categoria
         self.active = active
@@ -107,6 +116,9 @@ class ProductoSchema(ma.Schema):
             "modelo",
             "precio",
             "imagen",
+            "pb",
+            "ccn",
+            "pf",
             "description",
             "categoria",
             "active",
