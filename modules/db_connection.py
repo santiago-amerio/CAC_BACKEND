@@ -20,7 +20,7 @@ DB_host = os.getenv("MYSQL_HOST")
 DB_db_name = os.getenv("MYSQL_DB_NAME")
 
 app = Flask(__name__)  # crear el objeto app de la clase Flask
-CORS(app)  # modulo cors es para que me permita acceder desde el frontend al backend
+CORS(app, supports_credentials=True,origins="*")  # modulo cors es para que me permita acceder desde el frontend al backend
 
 # configuro la base de datos, con el nombre el usuario y la clave
 app.config[
