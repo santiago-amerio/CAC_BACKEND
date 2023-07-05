@@ -34,7 +34,7 @@ def login(user, request):
     if not user:
         response = jsonify({"error": "Usuario no encontrado"})
         response.status_code = 401
-        return response ,False
+        return response, False
     try:
         if (
             user.passw == request["passw"]
@@ -47,13 +47,20 @@ def login(user, request):
             response = make_response(jsonify({"message": "Login successful"}))
 
             response.set_cookie(
-                "token", token, max_age=expiration_delay.total_seconds(), secure=True
+                "token",
+                token,
+                max_age=expiration_delay.total_seconds(),
+                path="/",
+                secure=True,
+                samesite="None",
             )
             response.set_cookie(
                 "is_admin",
                 str(user.admin),
                 max_age=expiration_delay.total_seconds(),
+                path="/",
                 secure=True,
+                samesite="None",
             )
             return (response, token)
         else:
