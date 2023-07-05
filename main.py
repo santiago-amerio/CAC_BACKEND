@@ -230,23 +230,30 @@ class Routes_product(Routes):
         self.register_routes(self.routes)
 
     def __get_product(self):
-        json = request.args.get()
-        query = False
-        if "modelo" in json:
-            query = Producto.query.filter_by(modelo=json["modelo"]).first()
-        elif "id" in json:
-            query = Producto.query.filter_by(id=json["id"]).first()
+        modelo = request.args.get("modelo")
+        
+        query = Producto.query.filter_by(modelo=modelo).first()
+        
+        # query = False
+        # if "modelo" in json:
+            # query = Producto.query.filter_by(modelo=json["modelo"]).first()
+        # elif "id" in json:
+            # query = Producto.query.filter_by(id=json["id"]).first()
         if query:
             serialized_data = producto_schema.dump(query)
             return serialized_data
-        elif "categoria" in json:
-            response = Producto.query.filter_by(categoria=json["categoria"]).all()
-            response = productos_schema.dump(response)
-            return jsonify(response)
         else:
             response = Producto.query.all()
             response = productos_schema.dump(response)
             return jsonify(response)
+        # elif "categoria" in json:
+        #     response = Producto.query.filter_by(categoria=json["categoria"]).all()
+        #     response = productos_schema.dump(response)
+        #     return jsonify(response)
+        # else:
+        #     response = Producto.query.all()
+        #     response = productos_schema.dump(response)
+        #     return jsonify(response)
 
     @needs_auth_decorator(request, required_admin_level=1)
     def __post_product(self):
