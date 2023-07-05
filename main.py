@@ -303,10 +303,12 @@ class Routes_product(Routes):
     def __patch_product(self):
         json = request.json
         required_fields = ["id"]
+        
         missing_fields = [field for field in required_fields if field not in json]
         if missing_fields:
             error = {"err": {"missing-fields": missing_fields}}
             return error
+        id = request["id"]
         product = Producto.query.filter_by(id=id).first()
         product.modelo = json.get("modelo", product.modelo)
         product.precio = json.get("precio", product.precio)
