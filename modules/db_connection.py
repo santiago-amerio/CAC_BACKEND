@@ -89,9 +89,9 @@ class Producto(db.Model):
     precio = db.Column(db.Integer)
     imagen = db.Column(db.String(400))
     description = db.Column(db.String(500))
-    pb = db.Column(db.String)
-    ccn = db.Column(db.String)
-    pf = db.Column(db.String)
+    pb = db.Column(db.String(100))
+    ccn = db.Column(db.String(100))
+    pf = db.Column(db.String(100))
     categoria = db.Column(db.Integer, db.ForeignKey("category.id"))
     active = db.Column(db.Boolean)
 
