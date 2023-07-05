@@ -230,7 +230,7 @@ class Routes_product(Routes):
         self.register_routes(self.routes)
 
     def __get_product(self):
-        json = request.json
+        json = request.args.get()
         query = False
         if "modelo" in json:
             query = Producto.query.filter_by(modelo=json["modelo"]).first()
