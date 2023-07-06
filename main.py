@@ -90,13 +90,15 @@ class Routes_category(Routes):
         json = request.json
         if not "id" in json:
             return {"error": "necesitas la id de la categoria para actualizarla"}
-        cat = Category.query.filter_by(id=json["id"])
+        cat = Category.query.filter_by(id=json["id"]).first()
+        
         cat.titulo = json.get("titulo", cat.titulo)
         cat.description = json.get("descripcion", cat.description)
         cat.imagen = json.get("imagen", cat.imagen)
         try:
             db.session.commit()
-        except:
+        except Exception as e:
+            print(e)
             return {"error": "categoria ya existe?"}
         print(db.session)
         data = Category.query.get(json["id"])
@@ -239,7 +241,7 @@ class Routes_product(Routes):
                 serialized_data = producto_schema.dump(producto)
                 serialized_data["categoria"] = category_schema.dump(prod_cat)
                 return jsonify(serialized_data)
-        
+
         # Retrieve all products and fetch associated categories
         products = Producto.query.all()
         serialized_products = []
@@ -248,7 +250,7 @@ class Routes_product(Routes):
             serialized_product = producto_schema.dump(product)
             serialized_product["categoria"] = category_schema.dump(prod_cat)
             serialized_products.append(serialized_product)
-        
+
         return jsonify(serialized_products)
         # elif "categoria" in json:
         #     response = Producto.query.filter_by(categoria=json["categoria"]).all()
