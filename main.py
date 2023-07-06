@@ -291,7 +291,7 @@ class Routes_product(Routes):
 
         is_in_db = Producto.query.filter_by(modelo=model).first()
         if not category_exist:
-            return "la categoria no existe, por favor crea la categoria primero."
+            return {"error":"la categoria no existe, por favor crea la categoria primero."}
         if is_in_db:
             return "producto ya existe."
         new_product = Producto(model, price, img, description, pb, ccn, pf, category)
