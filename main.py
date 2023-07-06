@@ -1,7 +1,7 @@
 #
 #   !!! antes que nada corre pip install -r req.txtt !!!
 #
-from flask import Flask, jsonify, request, render_template, make_response
+from flask import Flask, jsonify, request, render_template
 
 
 # del modulo flask importar la clase Flask y los métodos jsonify,request
@@ -231,21 +231,25 @@ class Routes_product(Routes):
 
     def __get_product(self):
         modelo = request.args.get("modelo")
+
+        if modelo:
+            producto = db.session.query(Producto).filter_by(modelo=modelo).first()
+            if producto:
+                prod_cat = db.session.query(Category).get(producto.categoria)
+                serialized_data = producto_schema.dump(producto)
+                serialized_data["categoria"] = category_schema.dump(prod_cat)
+                return jsonify(serialized_data)
         
-        query = Producto.query.filter_by(modelo=modelo).first()
+        # Retrieve all products and fetch associated categories
+        products = Producto.query.all()
+        serialized_products = []
+        for product in products:
+            prod_cat = db.session.query(Category).get(product.categoria)
+            serialized_product = producto_schema.dump(product)
+            serialized_product["categoria"] = category_schema.dump(prod_cat)
+            serialized_products.append(serialized_product)
         
-        # query = False
-        # if "modelo" in json:
-            # query = Producto.query.filter_by(modelo=json["modelo"]).first()
-        # elif "id" in json:
-            # query = Producto.query.filter_by(id=json["id"]).first()
-        if query:
-            serialized_data = producto_schema.dump(query)
-            return serialized_data
-        else:
-            response = Producto.query.all()
-            response = productos_schema.dump(response)
-            return jsonify(response)
+        return jsonify(serialized_products)
         # elif "categoria" in json:
         #     response = Producto.query.filter_by(categoria=json["categoria"]).all()
         #     response = productos_schema.dump(response)
@@ -303,7 +307,7 @@ class Routes_product(Routes):
     def __patch_product(self):
         json = request.json
         required_fields = ["id"]
-        
+
         missing_fields = [field for field in required_fields if field not in json]
         if missing_fields:
             error = {"err": {"missing-fields": missing_fields}}
@@ -315,9 +319,9 @@ class Routes_product(Routes):
         product.imagen = json.get("imagen", product.imagen)
         product.description = json.get("description", product.description)
         product.categoria = json.get("categoria", product.categoria)
-        product.pb = json.get("pb",product.pb)
-        product.ccn = json.get("ccn",product.ccn)
-        product.pf = json.get("pf",product.pf)
+        product.pb = json.get("pb", product.pb)
+        product.ccn = json.get("ccn", product.ccn)
+        product.pf = json.get("pf", product.pf)
         try:
             db.session.commit()
         except Exception as e:
