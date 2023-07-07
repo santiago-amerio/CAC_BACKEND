@@ -52,14 +52,14 @@ def login(user, request):
                 max_age=expiration_delay.total_seconds(),
                 path="/",
                 secure=False,
-                samesite="None",
+                samesite="Lax",
             )
             response.set_cookie(
                 "is_admin",
                 str(user.admin),
                 max_age=expiration_delay.total_seconds(),
                 path="/",
-                secure=False,
+                secure=True,
                 samesite="None",
             )
             return (response, token)
