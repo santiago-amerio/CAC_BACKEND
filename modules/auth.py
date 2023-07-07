@@ -49,11 +49,7 @@ def login(user, request):
             response.set_cookie(
                 "token",
                 token,
-                max_age=expiration_delay.total_seconds(),
-                path="/",
-                secure=False,
-                samesite="Lax",
-                httponly=True
+                
             )
             response.set_cookie(
                 "is_admin",
