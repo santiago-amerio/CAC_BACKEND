@@ -53,6 +53,7 @@ def login(user, request):
                 path="/",
                 secure=False,
                 samesite="Lax",
+                httponly=True
             )
             response.set_cookie(
                 "is_admin",
