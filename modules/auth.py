@@ -49,7 +49,8 @@ def login(user, request):
             response.set_cookie(
                 "token",
                 token,
-                
+                secure=True,
+                samesite="None",
             )
             response.set_cookie(
                 "is_admin",
