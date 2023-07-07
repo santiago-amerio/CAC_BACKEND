@@ -182,7 +182,7 @@ class Routes_user(Routes):
     def __patch_user(self):
         json = request.json
         if not "id" in json:
-            return {"err": "necesitas la id del usuario a modificar"}
+            return {"error": "necesitas la id del usuario a modificar"}
         user_id = json["id"]
         user = User.query.filter_by(id=user_id).first()
         user.passw = json.get("passw", user.passw)
@@ -277,7 +277,7 @@ class Routes_product(Routes):
         missing_fields = [field for field in required_fields if field not in json]
 
         if missing_fields:
-            error = {"err": {"missing-fields": missing_fields}}
+            error = {"error": {"missing-fields": missing_fields}}
             return error
         model = json["modelo"]
         price = json["precio"]
@@ -312,7 +312,7 @@ class Routes_product(Routes):
 
         missing_fields = [field for field in required_fields if field not in json]
         if missing_fields:
-            error = {"err": {"missing-fields": missing_fields}}
+            error = {"error": {"missing-fields": missing_fields}}
             return error
         id = json["id"]
         product = Producto.query.filter_by(id=id).first()
@@ -337,7 +337,7 @@ class Routes_product(Routes):
         required_fields = ["id", "active"]
         missing_fields = [field for field in required_fields if field not in json]
         if missing_fields:
-            error = {"err": {"missing-fields": missing_fields}}
+            error = {"error": {"missing-fields": missing_fields}}
             return error
         product = Producto.query.filter_by(id=id).first()
         product.active = json.get("active", product.active)
