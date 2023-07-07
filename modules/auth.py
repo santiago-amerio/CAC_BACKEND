@@ -62,6 +62,7 @@ def login(user, request):
                 path="/",
                 secure=True,
                 samesite="None",
+                httponly=True
             )
             return (response, token)
         else:
