@@ -59,7 +59,7 @@ def login(user, request):
                 path="/",
                 secure=True,
                 samesite="None",
-                httponly=True
+                httponly=True,
             )
             return (response, token)
         else:
@@ -69,6 +69,44 @@ def login(user, request):
     except Exception as e:
         print(e)
         response = jsonify({"error": "Error occurred,falta usuario?"})
+        response.status_code = 500
+        return (response, "user.name")
+
+
+def logout(token, request):
+    if not token:
+        response = jsonify({"error": "token no encontrado"})
+        response.status_code = 401
+        return response, False
+    try:
+        response = make_response(jsonify({"message": "logged out"}))
+
+        # response.set_cookie(
+        #     "token",
+        #     "token",
+        #     secure=True,
+        #     samesite="None",
+        #     max_age=timedelta(seconds=1).total_seconds(),
+        # )
+        # response.set_cookie(
+        #     "is_admin",
+        #     "0",
+        #     max_age=timedelta(seconds=1).total_seconds(),
+        #     path="/",
+        #     secure=True,
+        #     samesite="None",
+        #     httponly=True,
+        # )
+        # token.creation_date = (
+        #     token.creation_date  - timedelta(days=255)
+        # )
+        response.delete_cookie("token",path='/', domain=None)
+        response.delete_cookie("is_admin",path='/', domain=None)
+        print(response.headers)
+        return (response, token)
+    except Exception as e:
+        print(e)
+        response = jsonify({"error": "Error occurred"})
         response.status_code = 500
         return (response, "user.name")
 

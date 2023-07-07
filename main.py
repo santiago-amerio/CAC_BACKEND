@@ -395,6 +395,11 @@ class Routes_default(Routes):
                 "method": ["POST"],
                 "function": [self.__post_check_if_user_is_logged],
             },
+            {
+                "endpoint":"/logout",
+                "method":["POST"],
+                "function":[self.__post_log_out]
+            }
         ]
 
         self.register_routes(self.routes)
@@ -436,7 +441,14 @@ class Routes_default(Routes):
             return response
         else:
             return response.json
+        
 
+    def __post_log_out(self):
+        token = request.cookies["token"]
+        token = Token.query.filter_by(token=token).first()
+        response, token = auth.logout(token, request.json)
+        
+        return response
     @needs_auth_decorator(request)
     def __post_change_client_properties(self):
         user_name = request.cookies["token"].split(".")[0]
@@ -472,7 +484,7 @@ class Routes_default(Routes):
             return "false"
         else:
             return "true"
-
+    
 
 #  ************************************************************
 # Create the routes

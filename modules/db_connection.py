@@ -67,10 +67,10 @@ class Token(db.Model):
     token = db.Column(db.String(150))
     creation_date = db.Column(db.DateTime())
 
-    def __init__(self, user_id, token):
+    def __init__(self, user_id, token,creation_date = datetime.now()):
         self.user_id = user_id
         self.token = token
-        self.creation_date = datetime.now()
+        self.creation_date = creation_date
 
 
 class TokenSchema(ma.Schema):
