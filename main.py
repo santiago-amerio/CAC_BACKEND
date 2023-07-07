@@ -388,6 +388,10 @@ class Routes_default(Routes):
                 "method": ["POST"],
                 "function": [self.__post_register_account],
             },
+            "endpoint":"/is_logged",
+            "method":["POST"]
+            ,
+            "function":[self.__post_check_if_user_is_logged]
         ]
 
         self.register_routes(self.routes)
@@ -459,7 +463,11 @@ class Routes_default(Routes):
         return render_template(
             "instructions_template.html", instructions=instructions_post()
         )
-
+    def __post_check_if_user_is_logged():
+        if "token" not in request.cookies:
+            return "false"
+        else:
+            return "true"
 
 #  ************************************************************
 # Create the routes
