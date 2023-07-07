@@ -447,7 +447,7 @@ class Routes_default(Routes):
         token = request.cookies["token"]
         token = Token.query.filter_by(token=token).first()
         response, token = auth.logout(token, request.json)
-        
+        db.session.commit()
         return response
     @needs_auth_decorator(request)
     def __post_change_client_properties(self):

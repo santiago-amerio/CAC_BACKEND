@@ -81,27 +81,27 @@ def logout(token, request):
     try:
         response = make_response(jsonify({"message": "logged out"}))
 
-        # response.set_cookie(
-        #     "token",
-        #     "token",
-        #     secure=True,
-        #     samesite="None",
-        #     max_age=timedelta(seconds=1).total_seconds(),
-        # )
-        # response.set_cookie(
-        #     "is_admin",
-        #     "0",
-        #     max_age=timedelta(seconds=1).total_seconds(),
-        #     path="/",
-        #     secure=True,
-        #     samesite="None",
-        #     httponly=True,
-        # )
-        # token.creation_date = (
-        #     token.creation_date  - timedelta(days=255)
-        # )
-        response.delete_cookie("token",path='/', domain=None)
-        response.delete_cookie("is_admin",path='/', domain=None)
+        response.set_cookie(
+            "token",
+            "token",
+            secure=True,
+            samesite="None",
+            max_age=timedelta(seconds=0).total_seconds(),
+        )
+        response.set_cookie(
+            "is_admin",
+            "0",
+            max_age=timedelta(seconds=0).total_seconds(),
+            path="/",
+            secure=True,
+            samesite="None",
+            httponly=True,
+        )
+        token.creation_date = (
+            token.creation_date  - timedelta(days=255)
+        )
+        # response.delete_cookie("token",path='/', domain=None)
+        # response.delete_cookie("is_admin",path='/', domain=None)
         print(response.headers)
         return (response, token)
     except Exception as e:
