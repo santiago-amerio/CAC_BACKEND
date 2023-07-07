@@ -51,7 +51,7 @@ def login(user, request):
                 token,
                 max_age=expiration_delay.total_seconds(),
                 path="/",
-                secure=True,
+                secure=False,
                 samesite="None",
             )
             response.set_cookie(
@@ -59,7 +59,7 @@ def login(user, request):
                 str(user.admin),
                 max_age=expiration_delay.total_seconds(),
                 path="/",
-                secure=True,
+                secure=False,
                 samesite="None",
             )
             return (response, token)
