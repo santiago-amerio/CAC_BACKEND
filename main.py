@@ -71,9 +71,16 @@ class Routes_category(Routes):
 
     @needs_auth_decorator(request, required_admin_level=1)
     def __post_category(self):
-        title = request.json["titulo"]
-        description = request.json["description"]
-        img_url = request.json["imagen"]
+        json = request.json
+        required_fields = ["id","titulo","imagen","description"]
+        missing_fields = [field for field in required_fields if field not in json]
+        if missing_fields:
+            error = {"error": {"missing-fields": missing_fields}}
+            return error
+        
+        title = json["titulo"]
+        description = json["description"]
+        img_url = json["imagen"]
 
         new_category = Category(title, img_url, description)
         db.session.add(new_category)
@@ -309,7 +316,6 @@ class Routes_product(Routes):
     def __patch_product(self):
         json = request.json
         required_fields = ["id"]
-
         missing_fields = [field for field in required_fields if field not in json]
         if missing_fields:
             error = {"error": {"missing-fields": missing_fields}}
