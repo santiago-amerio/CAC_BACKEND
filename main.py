@@ -72,12 +72,12 @@ class Routes_category(Routes):
     @needs_auth_decorator(request, required_admin_level=1)
     def __post_category(self):
         json = request.json
-        required_fields = ["id","titulo","imagen","description"]
+        required_fields = ["id", "titulo", "imagen", "description"]
         missing_fields = [field for field in required_fields if field not in json]
         if missing_fields:
             error = {"error": {"missing-fields": missing_fields}}
             return error
-        
+
         title = json["titulo"]
         description = json["description"]
         img_url = json["imagen"]
@@ -98,7 +98,7 @@ class Routes_category(Routes):
         if not "id" in json:
             return {"error": "necesitas la id de la categoria para actualizarla"}
         cat = Category.query.filter_by(id=json["id"]).first()
-        
+
         cat.titulo = json.get("titulo", cat.titulo)
         cat.description = json.get("description", cat.description)
         cat.imagen = json.get("imagen", cat.imagen)
@@ -298,7 +298,9 @@ class Routes_product(Routes):
 
         is_in_db = Producto.query.filter_by(modelo=model).first()
         if not category_exist:
-            return {"error":"la categoria no existe, por favor crea la categoria primero."}
+            return {
+                "error": "la categoria no existe, por favor crea la categoria primero."
+            }
         if is_in_db:
             return "producto ya existe."
         new_product = Producto(model, price, img, description, pb, ccn, pf, category)
@@ -388,10 +390,11 @@ class Routes_default(Routes):
                 "method": ["POST"],
                 "function": [self.__post_register_account],
             },
-            "endpoint":"/is_logged",
-            "method":["POST"]
-            ,
-            "function":[self.__post_check_if_user_is_logged]
+            {
+                "endpoint": "/is_logged",
+                "method": ["POST"],
+                "function": [self.__post_check_if_user_is_logged],
+            },
         ]
 
         self.register_routes(self.routes)
@@ -463,11 +466,13 @@ class Routes_default(Routes):
         return render_template(
             "instructions_template.html", instructions=instructions_post()
         )
-    def __post_check_if_user_is_logged():
+
+    def __post_check_if_user_is_logged(self):
         if "token" not in request.cookies:
             return "false"
         else:
             return "true"
+
 
 #  ************************************************************
 # Create the routes
