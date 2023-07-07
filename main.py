@@ -72,7 +72,7 @@ class Routes_category(Routes):
     @needs_auth_decorator(request, required_admin_level=1)
     def __post_category(self):
         title = request.json["titulo"]
-        description = request.json["descripcion"]
+        description = request.json["description"]
         img_url = request.json["imagen"]
 
         new_category = Category(title, img_url, description)
@@ -93,7 +93,7 @@ class Routes_category(Routes):
         cat = Category.query.filter_by(id=json["id"]).first()
         
         cat.titulo = json.get("titulo", cat.titulo)
-        cat.description = json.get("descripcion", cat.description)
+        cat.description = json.get("description", cat.description)
         cat.imagen = json.get("imagen", cat.imagen)
         try:
             db.session.commit()
@@ -268,7 +268,7 @@ class Routes_product(Routes):
             "modelo",
             "precio",
             "imagen",
-            "descripcion",
+            "description",
             "categoria",
             "pb",
             "ccn",
@@ -282,7 +282,7 @@ class Routes_product(Routes):
         model = json["modelo"]
         price = json["precio"]
         img = json["imagen"]
-        description = json["descripcion"]
+        description = json["description"]
         category = json["categoria"]
         pb = json["pb"]
         ccn = json["ccn"]
