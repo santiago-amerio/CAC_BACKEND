@@ -484,7 +484,7 @@ class Routes_default(Routes):
         if "token" not in request.cookies:
             return "false"
         else:
-            return request.cookies["admin"]
+            return request.cookies["is_admin"]
           
        
     
