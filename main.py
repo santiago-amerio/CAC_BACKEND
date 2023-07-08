@@ -482,8 +482,12 @@ class Routes_default(Routes):
     def __post_check_if_user_is_logged(self):
         if "token" not in request.cookies:
             return "false"
-        else:
-            return "true"
+        elif(request.cookies["admin"] == 0):
+            return "0"
+        elif(request.cookies["admin"] == 1):
+            return "1"
+        elif(request.cookies["admin"] == 2):
+            return "2"
     
 
 #  ************************************************************
