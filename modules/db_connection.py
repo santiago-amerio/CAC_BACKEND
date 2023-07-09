@@ -53,7 +53,7 @@ class User(db.Model):  # la clase Producto hereda de db.Model
 
 class UserSchema(ma.Schema):
     class Meta:
-        fields = ("id", "name", "passw", "admin", "active")
+        fields = ("id", "name", "passw","mail", "admin", "active")
 
 
 user_schema = UserSchema()
