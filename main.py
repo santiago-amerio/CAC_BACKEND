@@ -72,7 +72,7 @@ class Routes_category(Routes):
     @needs_auth_decorator(request, required_admin_level=1)
     def __post_category(self):
         json = request.json
-        required_fields = ["id", "titulo", "imagen", "description"]
+        required_fields = ["titulo", "imagen", "description"]
         missing_fields = [field for field in required_fields if field not in json]
         if missing_fields:
             error = {"error": {"missing-fields": missing_fields}}
