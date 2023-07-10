@@ -347,6 +347,7 @@ class Routes_product(Routes):
         if missing_fields:
             error = {"error": {"missing-fields": missing_fields}}
             return error
+        id = json["id"]
         product = Producto.query.filter_by(id=id).first()
         product.active = json.get("active", product.active)
         try:
