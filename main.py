@@ -299,10 +299,10 @@ class Routes_product(Routes):
         is_in_db = Producto.query.filter_by(modelo=model).first()
         if not category_exist:
             return {
-                "error": "la categoria no existe, por favor crea la categoria primero."
+                "error": "la categoria no existe"
             }
         if is_in_db:
-            return "producto ya existe."
+            return {"error":"producto ya existe."}
         new_product = Producto(model, price, img, description, pb, ccn, pf, category)
         db.session.add(new_product)
         try:
@@ -420,7 +420,7 @@ class Routes_default(Routes):
             db.session.commit()
         except Exception as e:
             print(e)
-            return {"error": "Usuario ya registrado?"}
+            return {"error": "Usuario ya registrado"}
         response = User.query.filter_by(name=name).first()
         return user_schema.jsonify(response)
 
