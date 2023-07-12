@@ -63,7 +63,7 @@ def login(user, request):
             )
             return (response, token)
         else:
-            response = jsonify({"error": "Invalid credentials"})
+            response = jsonify({"error": "credenciales invalidas"})
             response.status_code = 401
             return (response, user.name)
     except Exception as e:
